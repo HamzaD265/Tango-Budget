@@ -125,9 +125,9 @@
                 <div class="absolute top-4 left-4 border-2 border-black dark:border-white p-2 bg-gray-50 dark:bg-gray-900">
                     <i data-lucide="wallet" class="w-5 h-5"></i>
                 </div>
-                <h3 class="text-sm font-bold text-gray-600 dark:text-gray-400 mb-2" id="kpi-income-title">إجمالي الدخل الفعلي</h3>
+                <h3 class="text-sm font-bold text-gray-600 dark:text-gray-400 mb-2" id="kpi-income-title">إجمالي الدخل</h3>
                 <div class="text-3xl font-extrabold tracking-tight mb-2" id="total-income-display">0 ج.م</div>
-                <p class="text-xs text-gray-500 dark:text-gray-400" id="planned-income-text">المخطط: 0 ج.م</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400" id="income-desc-card">الراتب الأساسي ومصادر الدخل</p>
             </div>
 
             <!-- Card 2: Total Expenses -->
@@ -137,7 +137,7 @@
                 </div>
                 <h3 class="text-sm font-bold text-gray-600 dark:text-gray-400 mb-2" id="kpi-expenses-title">إجمالي المصروفات</h3>
                 <div class="text-3xl font-extrabold tracking-tight mb-2" id="total-expenses-display">0 ج.م</div>
-                <p class="text-xs text-gray-500 dark:text-gray-400" id="planned-expenses-text">المخطط: 0 ج.م</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400" id="expenses-desc-card">الالتزامات والأقساط والترفيه</p>
             </div>
 
             <!-- Card 3: Savings & Investments -->
@@ -172,18 +172,18 @@
             <div class="border-4 border-black dark:border-white p-6 bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white">
                 <div class="flex justify-between items-center mb-6 border-b-2 border-black dark:border-white pb-3">
                     <h3 class="font-bold text-lg" id="chart-pie-title">توزيع المصروفات والاستثمار (مرتب الأقسام)</h3>
-                    <button onclick="toggleChartType()" class="text-xs border-2 border-black dark:border-white px-2.5 py-1 font-bold shadow-brutal-sm dark:shadow-brutal-sm-white hover:bg-gray-100 dark:hover:bg-gray-900" id="chart-toggle-btn">النسب المئوية</button>
+                    <span class="text-xs font-bold border-2 border-black dark:border-white px-2.5 py-1" id="chart-badge-pie">حسب الأكثر استهلاكاً</span>
                 </div>
                 <div class="relative h-72 flex items-center justify-center">
                     <canvas id="expensesDoughnutChart"></canvas>
                 </div>
             </div>
 
-            <!-- Bar Chart: Planned vs Actual Cash Flow -->
+            <!-- Bar Chart: Category Comparison -->
             <div class="border-4 border-black dark:border-white p-6 bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white">
                 <div class="flex justify-between items-center mb-6 border-b-2 border-black dark:border-white pb-3">
-                    <h3 class="font-bold text-lg" id="chart-bar-title">التدفق النقدي (المخطط مقابل الفعلي)</h3>
-                    <span class="text-xs font-bold border-2 border-black dark:border-white px-2.5 py-1" id="chart-badge">مقارنة</span>
+                    <h3 class="font-bold text-lg" id="chart-bar-title">مقارنة أقسام الميزانية</h3>
+                    <span class="text-xs font-bold border-2 border-black dark:border-white px-2.5 py-1" id="chart-badge-bar">تحليل مالي</span>
                 </div>
                 <div class="relative h-72 flex items-center justify-center">
                     <canvas id="cashflowBarChart"></canvas>
@@ -218,12 +218,12 @@
             
             <div class="space-y-4 max-h-[70vh] overflow-y-auto px-1">
                 <div>
-                    <label class="block text-sm font-bold mb-1" id="wiz-label-income">المرتب أو الدخل الشهري الإجمالي:</label>
+                    <label class="block text-sm font-bold mb-1" id="wiz-label-income">المرتب الأساسي / الدخل الشهري الإجمالي:</label>
                     <input type="number" id="wiz-income" class="w-full border-2 border-black dark:border-white bg-white dark:bg-black px-3 py-2 font-bold shadow-brutal-sm dark:shadow-brutal-sm-white" placeholder="مثال: 39000">
                 </div>
 
                 <div class="border-t-2 border-dashed border-black dark:border-white pt-4 space-y-3">
-                    <h4 class="font-bold text-sm" id="wiz-subtitle">المبالغة المخططة للبنود الأساسية:</h4>
+                    <h4 class="font-bold text-sm" id="wiz-subtitle">المبالغ الأساسية للبنود:</h4>
                     
                     <div>
                         <label class="block text-xs font-bold mb-1" id="wiz-l1">1. الالتزامات الأساسية (إيجار، فواتير، طعام):</label>
@@ -263,34 +263,32 @@
 
     <!-- JavaScript Logic -->
     <script>
-        // State Management
         let currentLang = 'ar';
         let currentCurrency = 'EGP';
         let isDarkMode = false;
-        let chartDisplayPercentage = false;
 
         const currencySymbols = { EGP: 'ج.م', USD: '$', SAR: 'ر.س', GBP: '£', EUR: '€', JPY: '¥', CNY: '¥' };
 
-        // 5 Main Categories Structure
+        // 5 Categories Structure (Single Amount Value)
         let budgetData = {
             income: [
-                { id: 1, name: 'المرتب الرئيسي / الراتب الأساسي', planned: 0, actual: 0 }
+                { id: 1, name: 'المرتب الرئيسي / الراتب الأساسي', amount: 0 }
             ],
             obligations: [
-                { id: 2, name: 'الإيجار / السكن', planned: 0, actual: 0 },
-                { id: 3, name: 'الفواتير والمرافق (كهرباء، نت، مياه)', planned: 0, actual: 0 },
-                { id: 4, name: 'الطعام والمقاضي الأساسية', planned: 0, actual: 0 }
+                { id: 2, name: 'الإيجار / السكن', amount: 0 },
+                { id: 3, name: 'الفواتير والمرافق (كهرباء، نت، مياه)', amount: 0 },
+                { id: 4, name: 'الطعام والمقاضي الأساسية', amount: 0 }
             ],
             installments: [
-                { id: 5, name: 'الأقساط والديون الشهرية', planned: 0, actual: 0 }
+                { id: 5, name: 'الأقساط والديون الشهرية', amount: 0 }
             ],
             entertainment: [
-                { id: 6, name: 'الخروجات والترفيه والتسلية', planned: 0, actual: 0 },
-                { id: 7, name: 'الاشتراكات والتطبيقات', planned: 0, actual: 0 }
+                { id: 6, name: 'الخروجات والترفيه والتسلية', amount: 0 },
+                { id: 7, name: 'الاشتراكات والتطبيقات', amount: 0 }
             ],
             investment: [
-                { id: 8, name: 'الاستثمار والادخار (أسهم/ذهب)', planned: 0, actual: 0 },
-                { id: 9, name: 'صندوق الطوارئ', planned: 0, actual: 0 }
+                { id: 8, name: 'الاستثمار والادخار (أسهم/ذهب)', amount: 0 },
+                { id: 9, name: 'صندوق الطوارئ', amount: 0 }
             ]
         };
 
@@ -301,31 +299,26 @@
                 btnWizard: "إعداد سريع",
                 btnReset: "تصفير الكل",
                 themeText: "الوضع الليلي",
-                kpiIncome: "إجمالي الدخل الفعلي",
+                kpiIncome: "إجمالي الدخل",
                 kpiExpenses: "إجمالي المصروفات",
                 kpiSavings: "التوفير والاستثمار",
                 kpiRemaining: "المتبقي للصرف",
                 chartPie: "توزيع المصروفات والاستثمار (مرتب الأقسام)",
-                chartBar: "التدفق النقدي (المخطط مقابل الفعلي)",
-                chartToggle: "النسب المئوية",
-                chartToggleVal: "القيم المالية",
-                chartComp: "مقارنة",
+                chartBar: "مقارنة أقسام الميزانية",
                 sectionsTitle: "بنود الميزانية التفصيلية",
-                catIncome: "مصادر الدخل والمرتب (Income)",
+                catIncome: "مصادر الدخل والراتب الأساسي (Income)",
                 catObligations: "الالتزامات الأساسية (Obligations)",
                 catInstallments: "الأقساط والديون (Installments)",
                 catEntertainment: "مصاريف الحياة والترفيه (Living & Entertainment)",
                 catInvestment: "الاستثمار والطوارئ (Investment & Emergency)",
                 colName: "البند",
-                colPlanned: "المخطط",
-                colActual: "الفعلي",
-                colProgress: "الإنجاز",
+                colAmount: "المبلغ الأساسي",
                 colDelete: "حذف",
                 totalLabel: "المجموع الكلي",
                 addBtn: "+ بند جديد",
                 wizTitle: "معالج الإعداد السريع للميزانية",
-                wizIncLabel: "المرتب أو الدخل الشهري الإجمالي:",
-                wizSub: "المبالغ المخططة للبنود الأساسية:",
+                wizIncLabel: "المرتب الأساسي / الدخل الشهري الإجمالي:",
+                wizSub: "المبالغ الأساسية للبنود:",
                 wizL1: "1. الالتزامات الأساسية (إيجار، فواتير، طعام):",
                 wizL2: "2. الأقساط والديون:",
                 wizL3: "3. الترفيه والتسلية:",
@@ -335,7 +328,6 @@
                 wizSave: "حفظ وتطبيق",
                 toastReset: "تم تصفير جميع البيانات بنجاح",
                 toastSave: "تم تحديث الميزانية بنجاح",
-                plannedText: "المخطط:",
                 savingsRatio: "نسبة الادخار:",
                 consumedText: "المستهلك من الدخل:"
             },
@@ -345,31 +337,26 @@
                 btnWizard: "Quick Setup",
                 btnReset: "Reset All",
                 themeText: "Dark Mode",
-                kpiIncome: "Total Actual Income",
+                kpiIncome: "Total Income",
                 kpiExpenses: "Total Expenses",
                 kpiSavings: "Savings & Investments",
                 kpiRemaining: "Remaining to Spend",
                 chartPie: "Expenses & Investment Breakdown (Sorted)",
-                chartBar: "Cash Flow (Planned vs Actual)",
-                chartToggle: "Percentages",
-                chartToggleVal: "Values",
-                chartComp: "Comparison",
+                chartBar: "Budget Categories Comparison",
                 sectionsTitle: "Detailed Budget Sections",
-                catIncome: "Income & Salary",
+                catIncome: "Income & Base Salary",
                 catObligations: "Core Obligations",
                 catInstallments: "Installments & Debts",
                 catEntertainment: "Living & Entertainment",
                 catInvestment: "Investment & Emergency",
                 colName: "Item",
-                colPlanned: "Planned",
-                colActual: "Actual",
-                colProgress: "Progress",
+                colAmount: "Base Amount",
                 colDelete: "Delete",
                 totalLabel: "Total Sum",
                 addBtn: "+ New Item",
                 wizTitle: "Quick Budget Setup Wizard",
-                wizIncLabel: "Total Monthly Salary / Income:",
-                wizSub: "Planned amounts for core categories:",
+                wizIncLabel: "Base Monthly Salary / Income:",
+                wizSub: "Base amounts for core categories:",
                 wizL1: "1. Core Obligations (Rent, Bills, Food):",
                 wizL2: "2. Installments & Debts:",
                 wizL3: "3. Entertainment & Fun:",
@@ -379,7 +366,6 @@
                 wizSave: "Save & Apply",
                 toastReset: "All data cleared successfully",
                 toastSave: "Budget updated successfully",
-                plannedText: "Planned:",
                 savingsRatio: "Savings Ratio:",
                 consumedText: "Consumed of Income:"
             }
@@ -388,7 +374,6 @@
         let doughnutChartInstance = null;
         let barChartInstance = null;
 
-        // Init App
         document.addEventListener('DOMContentLoaded', () => {
             loadFromLocalStorage();
             renderTables();
@@ -396,13 +381,16 @@
             initCharts();
             lucide.createIcons();
 
-            // Currency change event
+            // Check if brand new (income is 0), open wizard automatically
+            if (budgetData.income.length > 0 && budgetData.income[0].amount === 0) {
+                setTimeout(openWizard, 300);
+            }
+
             document.getElementById('currency-select').addEventListener('change', (e) => {
                 currentCurrency = e.target.value;
                 updateDashboard();
             });
 
-            // Lang toggle event
             document.getElementById('lang-btn').addEventListener('click', () => {
                 currentLang = currentLang === 'ar' ? 'en' : 'ar';
                 document.documentElement.lang = currentLang;
@@ -412,7 +400,6 @@
                 updateDashboard();
             });
 
-            // Theme toggle event
             document.getElementById('theme-toggle').addEventListener('click', () => {
                 isDarkMode = !isDarkMode;
                 document.documentElement.classList.toggle('dark', isDarkMode);
@@ -444,12 +431,9 @@
             document.getElementById('kpi-remaining-title').textContent = t.kpiRemaining;
             document.getElementById('chart-pie-title').textContent = t.chartPie;
             document.getElementById('chart-bar-title').textContent = t.chartBar;
-            document.getElementById('chart-toggle-btn').textContent = chartDisplayPercentage ? t.chartToggleVal : t.chartToggle;
-            document.getElementById('chart-badge').textContent = t.chartComp;
             document.getElementById('sections-main-title').textContent = t.sectionsTitle;
             document.getElementById('lang-text').textContent = currentLang === 'ar' ? 'English' : 'عربي';
             
-            // Wizard UI
             document.getElementById('wizard-title').textContent = t.wizTitle;
             document.getElementById('wiz-label-income').textContent = t.wizIncLabel;
             document.getElementById('wiz-subtitle').textContent = t.wizSub;
@@ -462,13 +446,13 @@
             document.getElementById('wiz-save').textContent = t.wizSave;
         }
 
-        // Wizard Functions
         function openWizard() {
             document.getElementById('wizard-modal').classList.remove('hidden');
         }
         function closeWizard() {
             document.getElementById('wizard-modal').classList.add('hidden');
         }
+
         function saveWizardData() {
             const incVal = parseFloat(document.getElementById('wiz-income').value) || 0;
             const c1 = parseFloat(document.getElementById('wiz-c1').value) || 0;
@@ -477,15 +461,12 @@
             const c4 = parseFloat(document.getElementById('wiz-c4').value) || 0;
             const c5 = parseFloat(document.getElementById('wiz-c5').value) || 0;
 
-            if (budgetData.income.length > 0) {
-                budgetData.income[0].planned = incVal;
-                budgetData.income[0].actual = incVal;
-            }
-            if (budgetData.obligations.length > 0) budgetData.obligations[0].actual = c1;
-            if (budgetData.installments.length > 0) budgetData.installments[0].actual = c2;
-            if (budgetData.entertainment.length > 0) budgetData.entertainment[0].actual = c3;
-            if (budgetData.investment.length > 0) budgetData.investment[0].actual = c4;
-            if (budgetData.investment.length > 1) budgetData.investment[1].actual = c5;
+            if (budgetData.income.length > 0) budgetData.income[0].amount = incVal;
+            if (budgetData.obligations.length > 0) budgetData.obligations[0].amount = c1;
+            if (budgetData.installments.length > 0) budgetData.installments[0].amount = c2;
+            if (budgetData.entertainment.length > 0) budgetData.entertainment[0].amount = c3;
+            if (budgetData.investment.length > 0) budgetData.investment[0].amount = c4;
+            if (budgetData.investment.length > 1) budgetData.investment[1].amount = c5;
 
             closeWizard();
             saveToLocalStorage();
@@ -494,35 +475,28 @@
             showToast(translations[currentLang].toastSave);
         }
 
-        // Render Tables for 5 Categories
         function renderTables() {
             const container = document.getElementById('tables-container');
             const t = translations[currentLang];
             
             const categories = [
-                { key: 'income', title: t.catIncome, count: budgetData.income.length },
-                { key: 'obligations', title: t.catObligations, count: budgetData.obligations.length },
-                { key: 'installments', title: t.catInstallments, count: budgetData.installments.length },
-                { key: 'entertainment', title: t.catEntertainment, count: budgetData.entertainment.length },
-                { key: 'investment', title: t.catInvestment, count: budgetData.investment.length }
+                { key: 'income', title: t.catIncome },
+                { key: 'obligations', title: t.catObligations },
+                { key: 'installments', title: t.catInstallments },
+                { key: 'entertainment', title: t.catEntertainment },
+                { key: 'investment', title: t.catInvestment }
             ];
 
             container.innerHTML = categories.map(cat => {
                 const items = budgetData[cat.key];
-                const totalPlanned = items.reduce((sum, i) => sum + i.planned, 0);
-                const totalActual = items.reduce((sum, i) => sum + i.actual, 0);
-                const totalPct = totalPlanned > 0 ? Math.round((totalActual / totalPlanned) * 100) : (totalActual > 0 ? 100 : 0);
+                const totalAmount = items.reduce((sum, i) => sum + i.amount, 0);
 
-                let rowsHTML = items.length === t.colName ? `<tr><td colspan="5" class="p-4 text-center text-gray-500">${currentLang === 'ar' ? 'لا توجد بنود حالياً' : 'No items'}</td></tr>` : items.map(item => `
+                let rowsHTML = items.map(item => `
                     <tr class="border-b-2 border-black dark:border-white hover:bg-gray-50 dark:hover:bg-gray-900 transition">
                         <td class="p-3 font-medium">${item.name}</td>
                         <td class="p-3">
-                            <input type="number" value="${item.planned}" onchange="updateItem(${cat.key}, ${item.id}, 'planned', this.value)" class="w-24 bg-transparent border-b-2 border-dashed border-black dark:border-white px-1 font-bold focus:outline-none">
+                            <input type="number" value="${item.amount}" onchange="updateItem('${cat.key}', ${item.id}, this.value)" class="w-32 bg-transparent border-b-2 border-dashed border-black dark:border-white px-1 font-bold focus:outline-none">
                         </td>
-                        <td class="p-3">
-                            <input type="number" value="${item.actual}" onchange="updateItem(${cat.key}, ${item.id}, 'actual', this.value)" class="w-24 bg-transparent border-b-2 border-dashed border-black dark:border-white px-1 font-bold focus:outline-none">
-                        </td>
-                        <td class="p-3 font-bold">${totalPlanned > 0 ? Math.round((item.actual / (item.planned || 1)) * 100) : 0}%</td>
                         <td class="p-3 text-center">
                             <button onclick="deleteItem('${cat.key}', ${item.id})" class="text-red-600 hover:text-red-800 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </td>
@@ -541,9 +515,7 @@
                                     <thead>
                                         <tr class="border-b-2 border-black dark:border-white bg-gray-50 dark:bg-gray-900">
                                             <th class="p-3 font-bold">${t.colName}</th>
-                                            <th class="p-3 font-bold">${t.colPlanned}</th>
-                                            <th class="p-3 font-bold">${t.colActual}</th>
-                                            <th class="p-3 font-bold">${t.colProgress}</th>
+                                            <th class="p-3 font-bold">${t.colAmount}</th>
                                             <th class="p-3 font-bold text-center">${t.colDelete}</th>
                                         </tr>
                                     </thead>
@@ -555,7 +527,7 @@
                         </div>
                         <div class="border-t-2 border-black dark:border-white p-3 bg-gray-50 dark:bg-gray-900 flex justify-between items-center text-xs font-bold">
                             <span>${t.totalLabel}:</span>
-                            <span>${t.colPlanned}: ${formatCurrency(totalPlanned)} | ${t.colActual}: ${formatCurrency(totalActual)} (${totalPct}%)</span>
+                            <span>${formatCurrency(totalAmount)}</span>
                         </div>
                     </div>
                 `;
@@ -569,10 +541,10 @@
             return `${val.toLocaleString()} ${sym}`;
         }
 
-        function updateItem(category, id, field, value) {
+        function updateItem(category, id, value) {
             const item = budgetData[category].find(i => i.id === id);
             if (item) {
-                item[field] = parseFloat(value) || 0;
+                item.amount = parseFloat(value) || 0;
                 saveToLocalStorage();
                 updateDashboard();
             }
@@ -588,10 +560,9 @@
         function addItemPrompt(category) {
             const name = prompt(currentLang === 'ar' ? 'أدخل اسم البند الجديد:' : 'Enter item name:');
             if (!name) return;
-            const planned = parseFloat(prompt(currentLang === 'ar' ? 'المبلغ المخطط:' : 'Planned amount:', '0')) || 0;
-            const actual = parseFloat(prompt(currentLang === 'ar' ? 'المبلغ الفعلي:' : 'Actual amount:', '0')) || 0;
+            const amount = parseFloat(prompt(currentLang === 'ar' ? 'المبلغ الأساسي:' : 'Base amount:', '0')) || 0;
             
-            const newItem = { id: Date.now(), name, planned, actual };
+            const newItem = { id: Date.now(), name, amount };
             budgetData[category].push(newItem);
             saveToLocalStorage();
             renderTables();
@@ -599,40 +570,22 @@
         }
 
         function updateDashboard() {
-            // Calculations
-            const totalIncPlanned = budgetData.income.reduce((s, i) => s + i.planned, 0);
-            const totalIncActual = budgetData.income.reduce((s, i) => s + i.actual, 0);
+            const totalInc = budgetData.income.reduce((s, i) => s + i.amount, 0);
+            const totalOblig = budgetData.obligations.reduce((s, i) => s + i.amount, 0);
+            const totalInst = budgetData.installments.reduce((s, i) => s + i.amount, 0);
+            const totalEnt = budgetData.entertainment.reduce((s, i) => s + i.amount, 0);
+            const totalInv = budgetData.investment.reduce((s, i) => s + i.amount, 0);
 
-            const totalObligActual = budgetData.obligations.reduce((s, i) => s + i.actual, 0);
-            const totalObligPlanned = budgetData.obligations.reduce((s, i) => s + i.planned, 0);
+            const totalExpenses = totalOblig + totalInst + totalEnt;
+            const totalSavings = totalInv;
 
-            const totalInstActual = budgetData.installments.reduce((s, i) => s + i.actual, 0);
-            const totalInstPlanned = budgetData.installments.reduce((s, i) => s + i.planned, 0);
+            const remaining = totalInc - (totalExpenses + totalSavings);
+            const consumedPct = totalInc > 0 ? Math.min(100, Math.round(((totalExpenses + totalSavings) / totalInc) * 100)) : 0;
+            const savingsRatio = totalInc > 0 ? Math.round((totalSavings / totalInc) * 100) : 0;
 
-            const totalEntActual = budgetData.entertainment.reduce((s, i) => s + i.actual, 0);
-            const totalEntPlanned = budgetData.entertainment.reduce((s, i) => s + i.planned, 0);
-
-            const totalInvActual = budgetData.investment.reduce((s, i) => s + i.actual, 0);
-            const totalInvPlanned = budgetData.investment.reduce((s, i) => s + i.planned, 0);
-
-            const totalExpensesActual = totalObligActual + totalInstActual + totalEntActual;
-            const totalExpensesPlanned = totalObligPlanned + totalInstPlanned + totalEntPlanned;
-
-            const totalSavingsActual = totalInvActual;
-            const totalSavingsPlanned = totalInvPlanned;
-
-            const remaining = totalIncActual - (totalExpensesActual + totalSavingsActual);
-            const consumedPct = totalIncActual > 0 ? Math.min(100, Math.round(((totalExpensesActual + totalSavingsActual) / totalIncActual) * 100)) : 0;
-            const savingsRatio = totalIncActual > 0 ? Math.round((totalSavingsActual / totalIncActual) * 100) : 0;
-
-            // Update UI Cards
-            document.getElementById('total-income-display').textContent = formatCurrency(totalIncActual);
-            document.getElementById('planned-income-text').textContent = `${translations[currentLang].plannedText} ${formatCurrency(totalIncPlanned)}`;
-
-            document.getElementById('total-expenses-display').textContent = formatCurrency(totalExpensesActual);
-            document.getElementById('planned-expenses-text').textContent = `${translations[currentLang].plannedText} ${formatCurrency(totalExpensesPlanned)}`;
-
-            document.getElementById('total-savings-display').textContent = formatCurrency(totalSavingsActual);
+            document.getElementById('total-income-display').textContent = formatCurrency(totalInc);
+            document.getElementById('total-expenses-display').textContent = formatCurrency(totalExpenses);
+            document.getElementById('total-savings-display').textContent = formatCurrency(totalSavings);
             document.getElementById('savings-ratio-text').textContent = `${translations[currentLang].savingsRatio} ${savingsRatio}%`;
 
             document.getElementById('total-remaining-display').textContent = formatCurrency(remaining);
@@ -640,26 +593,21 @@
             document.getElementById('remaining-subtitle').textContent = `${translations[currentLang].consumedText} ${consumedPct}%`;
 
             updateChartsData({
-                obligations: totalObligActual,
-                installments: totalInstActual,
-                entertainment: totalEntActual,
-                investment: totalInvActual
+                obligations: totalOblig,
+                installments: totalInst,
+                entertainment: totalEnt,
+                investment: totalInv
             }, {
-                incomeActual: totalIncActual,
-                incomePlanned: totalIncPlanned,
-                expActual: totalExpensesActual,
-                expPlanned: totalExpensesPlanned,
-                savActual: totalSavingsActual,
-                savPlanned: totalSavingsPlanned
+                income: totalInc,
+                expenses: totalExpenses,
+                savings: totalSavings
             });
         }
 
-        // Charts Initialization & Updating
         function initCharts() {
             const isDark = document.documentElement.classList.contains('dark');
             const textColor = isDark ? '#ffffff' : '#000000';
 
-            // Doughnut Chart (Sorted Categories)
             const ctxDoughnut = document.getElementById('expensesDoughnutChart').getContext('2d');
             doughnutChartInstance = new Chart(ctxDoughnut, {
                 type: 'doughnut',
@@ -667,7 +615,7 @@
                     labels: [],
                     datasets: [{
                         data: [],
-                        backgroundColor: ['#000000', '#444444', '#888888', '#cccccc', '#eeeeee'],
+                        backgroundColor: ['#000000', '#444444', '#888888', '#cccccc'],
                         borderColor: isDark ? '#ffffff' : '#000000',
                         borderWidth: 2
                     }]
@@ -681,16 +629,18 @@
                 }
             });
 
-            // Bar Chart
             const ctxBar = document.getElementById('cashflowBarChart').getContext('2d');
             barChartInstance = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
                     labels: [currentLang === 'ar' ? 'الدخل' : 'Income', currentLang === 'ar' ? 'المصروفات' : 'Expenses', currentLang === 'ar' ? 'التوفير' : 'Savings'],
-                    datasets: [
-                        { label: currentLang === 'ar' ? 'المخطط' : 'Planned', data: [0, 0, 0], backgroundColor: '#888888', borderColor: isDark ? '#ffffff' : '#000000', borderWidth: 2 },
-                        { label: currentLang === 'ar' ? 'الفعلي' : 'Actual', data: [0, 0, 0], backgroundColor: isDark ? '#ffffff' : '#000000', borderColor: isDark ? '#ffffff' : '#000000', borderWidth: 2 }
-                    ]
+                    datasets: [{
+                        label: currentLang === 'ar' ? 'المبلغ الأساسي' : 'Base Amount',
+                        data: [0, 0, 0],
+                        backgroundColor: isDark ? '#ffffff' : '#000000',
+                        borderColor: isDark ? '#ffffff' : '#000000',
+                        borderWidth: 2
+                    }]
                 },
                 options: {
                     responsive: true,
@@ -709,7 +659,6 @@
         function updateChartsData(categories, totals) {
             if (!doughnutChartInstance || !barChartInstance) return;
 
-            // Sort categories by highest consumption
             const catsArr = [
                 { name: currentLang === 'ar' ? 'الالتزامات الأساسية' : 'Obligations', val: categories.obligations },
                 { name: currentLang === 'ar' ? 'الأقساط والديون' : 'Installments', val: categories.installments },
@@ -721,15 +670,8 @@
             doughnutChartInstance.data.datasets[0].data = catsArr.map(c => c.val);
             doughnutChartInstance.update();
 
-            // Bar Chart Update
-            barChartInstance.data.datasets[0].data = [totals.incomePlanned, totals.expPlanned, totals.savPlanned];
-            barChartInstance.data.datasets[1].data = [totals.incomeActual, totals.expActual, totals.savActual];
+            barChartInstance.data.datasets[0].data = [totals.income, totals.expenses, totals.savings];
             barChartInstance.update();
-        }
-
-        function toggleChartType() {
-            chartDisplayPercentage = !chartDisplayPercentage;
-            document.getElementById('chart-toggle-btn').textContent = chartDisplayPercentage ? translations[currentLang].chartToggleVal : translations[currentLang].chartToggle;
         }
 
         function updateChartsTheme() {
@@ -747,15 +689,14 @@
             barChartInstance.update();
         }
 
-        // Reset All Data
         function resetBudget() {
             if (!confirm(currentLang === 'ar' ? 'هل أنت متأكد من تصفير جميع البيانات؟' : 'Are you sure you want to clear all data?')) return;
             budgetData = {
-                income: [{ id: 1, name: currentLang === 'ar' ? 'المرتب الرئيسي' : 'Main Salary', planned: 0, actual: 0 }],
-                obligations: [{ id: 2, name: currentLang === 'ar' ? 'الإيجار / السكن' : 'Rent / Housing', planned: 0, actual: 0 }],
-                installments: [{ id: 3, name: currentLang === 'ar' ? 'الأقساط الشهرية' : 'Monthly Installments', planned: 0, actual: 0 }],
-                entertainment: [{ id: 4, name: currentLang === 'ar' ? 'الترفيه والتسلية' : 'Entertainment', planned: 0, actual: 0 }],
-                investment: [{ id: 5, name: currentLang === 'ar' ? 'الاستثمار والادخار' : 'Investment & Savings', planned: 0, actual: 0 }]
+                income: [{ id: 1, name: currentLang === 'ar' ? 'المرتب الرئيسي' : 'Main Salary', amount: 0 }],
+                obligations: [{ id: 2, name: currentLang === 'ar' ? 'الإيجار / السكن' : 'Rent / Housing', amount: 0 }],
+                installments: [{ id: 3, name: currentLang === 'ar' ? 'الأقساط الشهرية' : 'Monthly Installments', amount: 0 }],
+                entertainment: [{ id: 4, name: currentLang === 'ar' ? 'الترفيه والتسلية' : 'Entertainment', amount: 0 }],
+                investment: [{ id: 5, name: currentLang === 'ar' ? 'الاستثمار والادخار' : 'Investment & Savings', amount: 0 }]
             };
             saveToLocalStorage();
             renderTables();
