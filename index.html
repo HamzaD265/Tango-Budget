@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tango Budget | Personal Finance Dashboard</title>
+    <!-- Favicon مطابق لشعار TB المرفق -->
+    <link rel="icon" type="image/jpeg" href="icon.jpg">    
+    <!-- استدعاء خطوط Cairo للعربية و Space Grotesk / Inter للإنجليزية -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js للرسوم البيانية -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- أيقونات Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        arabic: ['Cairo', 'sans-serif'],
+                        english: ['Inter', 'sans-serif'],
+                        brand: ['Space Grotesk', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'brutal': '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                        'brutal-white': '4px 4px 0px 0px rgba(255, 255, 255, 1)',
+                        'brutal-sm': '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                        'brutal-sm-white': '2px 2px 0px 0px rgba(255, 255, 255, 1)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html[lang="ar"] body {
+            font-family: 'Cairo', sans-serif;
+        }
+        html[lang="en"] body {
+            font-family: 'Inter', sans-serif;
+        }
+        .brand-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        body {
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+
+        /* تنسيق احترافي للطباعة وتصدير PDF */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 12mm;
+            }
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .shadow-brutal, .shadow-brutal-white, .shadow-brutal-sm, .shadow-brutal-sm-white {
+                box-shadow: none !important;
+            }
+            .dark\:bg-black, .dark\:bg-neutral-950, .dark\:bg-neutral-900 {
+                background-color: #ffffff !important;
+            }
+            .dark\:text-white {
+                color: #000000 !important;
+            }
+            .dark\:border-white {
+                border-color: #000000 !important;
+            }
+            #kpiRemainingCard {
+                background-color: #000000 !important;
+                color: #ffffff !important;
+            }
+            section {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            input {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-white text-black dark:bg-black dark:text-white antialiased selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black">
+
+    <!-- الحاوية الرئيسية -->
+    <div class="min-h-screen flex flex-col max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- ترويسة خاصة بتقرير PDF عند الطباعة فقط -->
+        <div class="hidden print-only mb-4 pb-3 border-b-2 border-black flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-extrabold brand-font" dir="ltr">Tango Budget — Financial Report</h1>
+                <p id="printSubtitle" class="text-xs font-bold text-neutral-600">تقرير الميزانية الشخصية الشامل</p>
+            </div>
+            <div class="text-xs font-bold text-left" dir="ltr">
+                <span id="printDate"></span> | <span id="printCurrencyInfo"></span>
+            </div>
+        </div>
+
+        <!-- الشريط العلوي (Header) -->
+        <header class="no-print flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b-2 border-black dark:border-white">
+            <div class="flex items-center gap-3">
+                <!-- شعار TB مطابق للأيقونة -->
+                <svg class="w-12 h-12 shrink-0 border-2 border-black dark:border-white rounded-xl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" rx="14" class="fill-black dark:fill-white"/>
+                    <text x="50" y="68" font-family="Space Grotesk, Arial, sans-serif" font-weight="800" font-size="50" class="fill-white dark:fill-black" text-anchor="middle" letter-spacing="-2">TB</text>
+                </svg>
+                <div>
+                    <!-- اسم البراند يظل باللغة الإنجليزية دائماً -->
+                    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight brand-font" dir="ltr">Tango Budget</h1>
+                    <p id="headerSubtitle" class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 font-semibold">لوحة تحكم الميزانية الشخصية • الجنيه المصري (EGP)</p>
+                </div>
+            </div>
+
+            <!-- أدوات التحكم العلوية -->
+            <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto justify-end">
+                <!-- زر فتح معالج الإعداد السريع -->
+                <button id="openWizardBtn" class="flex items-center gap-2 bg-white dark:bg-black border-2 border-black dark:border-white px-3.5 py-2 font-bold text-xs sm:text-sm hover:bg-neutral-100 dark:hover:bg-neutral-900 shadow-brutal-sm dark:shadow-brutal-sm-white transition-all active:translate-x-0.5 active:translate-y-0.5 cursor-pointer">
+                    <i data-lucide="wand-2" class="w-4 h-4"></i>
+                    <span id="wizardBtnText">إعداد سريع</span>
+                </button>
+
+                <!-- قائمة اختيار العملات (7 عملات محددة) -->
+                <div class="relative flex items-center bg-white dark:bg-black border-2 border-black dark:border-white shadow-brutal-sm dark:shadow-brutal-sm-white">
+                    <i data-lucide="coins" class="w-4 h-4 mx-2.5 pointer-events-none shrink-0"></i>
+                    <select id="currencySelector" aria-label="Select Currency" class="bg-transparent py-2 pe-3 ps-1 font-extrabold text-xs sm:text-sm focus:outline-none cursor-pointer">
+                        <option value="EGP" class="bg-white text-black dark:bg-black dark:text-white">EGP (ج.م)</option>
+                        <option value="USD" class="bg-white text-black dark:bg-black dark:text-white">USD ($)</option>
+                        <option value="SAR" class="bg-white text-black dark:bg-black dark:text-white">SAR (ر.س)</option>
+                        <option value="GBP" class="bg-white text-black dark:bg-black dark:text-white">GBP (£)</option>
+                        <option value="EUR" class="bg-white text-black dark:bg-black dark:text-white">EUR (€)</option>
+                        <option value="JPY" class="bg-white text-black dark:bg-black dark:text-white">JPY (¥)</option>
+                        <option value="CNY" class="bg-white text-black dark:bg-black dark:text-white">CNY (¥)</option>
+                    </select>
+                </div>
+
+                <!-- زر تبديل اللغة (عربي / English) -->
+                <button id="langToggle" aria-label="Switch Language" class="flex items-center gap-2 bg-white dark:bg-black border-2 border-black dark:border-white px-3.5 py-2 font-bold text-xs sm:text-sm hover:bg-neutral-100 dark:hover:bg-neutral-900 shadow-brutal-sm dark:shadow-brutal-sm-white transition-all active:translate-x-0.5 active:translate-y-0.5 cursor-pointer">
+                    <i data-lucide="globe" class="w-4 h-4"></i>
+                    <span id="langText">English</span>
+                </button>
+
+                <!-- تصدير التقرير PDF -->
+                <button id="exportPdfBtn" class="flex items-center gap-2 bg-white dark:bg-black border-2 border-black dark:border-white px-3.5 py-2 font-bold text-xs sm:text-sm hover:bg-neutral-100 dark:hover:bg-neutral-900 shadow-brutal-sm dark:shadow-brutal-sm-white transition-all active:translate-x-0.5 active:translate-y-0.5 cursor-pointer">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    <span id="exportPdfText">تصدير PDF</span>
+                </button>
+
+                <!-- إعادة ضبط البيانات (تصفير كامل) -->
+                <button id="resetBtn" class="flex items-center gap-2 bg-white dark:bg-black border-2 border-black dark:border-white px-3.5 py-2 font-bold text-xs sm:text-sm hover:bg-neutral-100 dark:hover:bg-neutral-900 shadow-brutal-sm dark:shadow-brutal-sm-white transition-all active:translate-x-0.5 active:translate-y-0.5 cursor-pointer">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    <span id="resetText" class="hidden sm:inline">تصفير الكل</span>
+                </button>
+
+                <!-- زر تبديل المظهر (الوضع الليلي / الوضع النهاري) -->
+                <button id="themeToggle" aria-label="Toggle Theme" class="flex items-center gap-2 bg-black text-white dark:bg-white dark:text-black border-2 border-black dark:border-white px-4 py-2 font-bold text-xs sm:text-sm shadow-brutal-sm dark:shadow-brutal-sm-white transition-all active:translate-x-0.5 active:translate-y-0.5 cursor-pointer">
+                    <i id="themeIcon" data-lucide="moon" class="w-4 h-4"></i>
+                    <span id="themeText">الوضع الليلي</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- رسالة تنبيه مخصصة -->
+        <div id="toastMessage" class="no-print hidden fixed bottom-6 left-6 z-50 bg-black text-white dark:bg-white dark:text-black border-2 border-black dark:border-white px-5 py-3 font-bold text-sm shadow-brutal dark:shadow-brutal-white flex items-center gap-3 transition-all">
+            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+            <span id="toastText">تمت العملية بنجاح</span>
+        </div>
+
+        <!-- معالج الإعداد السريع (Quick Setup Wizard) -->
+        <section id="setupWizardSection" class="no-print border-2 border-black dark:border-white p-5 sm:p-7 my-6 bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white">
+            <div class="flex justify-between items-start gap-4 pb-4 mb-6 border-b-2 border-black dark:border-white">
+                <div>
+                    <div class="inline-flex items-center gap-2 bg-black text-white dark:bg-white dark:text-black px-2.5 py-1 text-xs font-extrabold mb-2">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        <span id="wizBadge">خطوات سريعة لبناء ميزانيتك</span>
+                    </div>
+                    <h2 id="wizTitle" class="text-xl sm:text-2xl font-extrabold">إعداد الميزانية الشهرية من الصفر</h2>
+                    <p id="wizDesc" class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 font-semibold mt-1">أدخل راتبك الشهري ثم وزّع مبالغك على البنود الأساسية ليتم حساب وتخطيط كل شيء تلقائياً.</p>
+                </div>
+                <button id="closeWizardBtn" title="Close" class="p-1.5 border-2 border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="quickSetupForm" class="space-y-6">
+                <!-- الخطوة 1: المرتب / الدخل الشهري -->
+                <div class="p-4 sm:p-5 border-2 border-black dark:border-white bg-neutral-50 dark:bg-neutral-950">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="w-7 h-7 flex items-center justify-center bg-black text-white dark:bg-white dark:text-black font-extrabold text-sm">1</span>
+                        <label for="wizSalaryInput" id="wizStep1Label" class="text-base sm:text-lg font-extrabold">ما هو مرتبك أو دخلك الشهري؟</label>
+                    </div>
+                    <div class="relative max-w-md">
+                        <input type="number" id="wizSalaryInput" min="0" step="any" placeholder="0" class="w-full bg-white dark:bg-black border-2 border-black dark:border-white px-4 py-3 text-lg sm:text-xl font-extrabold focus:outline-none">
+                        <span id="wizSalaryCurrBadge" class="absolute inset-y-0 end-3 flex items-center text-sm font-extrabold text-neutral-500 pointer-events-none">EGP</span>
+                    </div>
+                </div>
+
+                <!-- الخطوة 2: البنود الأساسية الخمسة -->
+                <div class="p-4 sm:p-5 border-2 border-black dark:border-white bg-neutral-50 dark:bg-neutral-950">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-7 h-7 flex items-center justify-center bg-black text-white dark:bg-white dark:text-black font-extrabold text-sm">2</span>
+                        <div>
+                            <h3 id="wizStep2Label" class="text-base sm:text-lg font-extrabold">توزيع البنود الأساسية (المخطط والفعلي)</h3>
+                            <p id="wizStep2Sub" class="text-xs text-neutral-500 dark:text-neutral-400 font-semibold">اترك أي بند فارغاً أو صفراً إذا لم يكن لديك مصروفات فيه حالياً.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- 1. الالتزامات الأساسية -->
+                        <div class="border-2 border-black dark:border-white p-3.5 bg-white dark:bg-black">
+                            <div class="flex items-center gap-2 font-extrabold text-sm mb-2.5">
+                                <i data-lucide="home" class="w-4 h-4"></i>
+                                <span id="wizCatEssential">الالتزامات الأساسية</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-neutral-500 mb-1 wiz-lbl-planned">المخطط</label>
+                                    <input type="number" id="wizEssentialPlanned" min="0" step="any" placeholder="0" class="w-full bg-transparent border border-black dark:border-white px-2.5 py-1.5 text-sm font-bold focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-neutral-500 mb-1 wiz-lbl-actual">الفعلي</label>
+                                    <input type="number" id="wizEssentialActual" min="0" step="any" placeholder="0" class="w-full bg-transparent border border-black dark:border-white px-2.5 py-1.5 text-sm font-bold focus:outline-none">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. الأقساط -->
+                        <div class="border-2 border-black dark:border-white p-3.5 bg-white dark:bg-black">
+                            <div class="flex items-center gap-2 font-extrabold text-sm mb-2.5">
+                                <i data-lucide="credit-card" class="w-4 h-4"></i>
+                                <span id="wizCatInstallments">الأقساط</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-neutral-500 mb-1 wiz-lbl-planned">المخطط</label>
+                                    <input type="number" id="wizInstallmentsPlanned" min="0" step="any" placeholder="0" class="w-full bg-transparent border border-black dark:border-white px-2.5 py-1.5 text-sm font-bold focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-neutral-500 mb-1 wiz-lbl-actual">الفعلي</label>
+                                    <input type="number" id="wizInstallmentsActual" min="0" step="any" placeholder="0" class="w-full bg-transparent border border-black dark:border-white px-2.5 py-1.5 text-sm font-bold focus:outline-none">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. الترفيه -->
+                        <div class="border-2 border-black dark:border-white p-3.5 bg-white dark:bg-black">
+                            <div class="flex items-center gap-2 font-extrabold text-sm mb-2.5">
+                                <i data-lucide="smile" class="w-4 h-4"></i>
+                                <span id="wizCatEntertainment">الترفيه</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-neutral-500 mb-1 wiz-lbl-planned">المخطط</label>
+                                    <input type="number" id="wizEntertainmentPlanned" min="0" step="any" placeholder="0" class="w-full bg-transparent border border-black dark:border-white px-2.5 py-1.5 text-sm font-bold focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-neutral-500 mb-1 wiz-lbl-actual">الفعلي</label>
+                                    <input type="number" id="wizEntertainmentActual" min="0" step="any" placeholder="0" class="w-full bg-transparent border border-black dark:border-white px-2.5 py-1.5 text-sm font-bold focus:outline-none">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. الاستثمار -->
+                        <div class="border-2 border-black dark:border-white p-3.5 bg-white dark:bg-black">
+                            <div class="flex items-center gap-2 font-extrabold text-sm mb-2.5">
+                                <i data-lucide="trending-up" class="w-4 h-4"></i>
+                                <span id="wizCatInvestment">الاستثمار</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-neutral-500 mb-1 wiz-lbl-planned">المخطط</label>
+                                    <input type="number" id="wizInvestmentPlanned" min="0" step="any" placeholder="0" class="w-full bg-transparent border border-black dark:border-white px-2.5 py-1.5 text-sm font-bold focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-neutral-500 mb-1 wiz-lbl-actual">الفعلي</label>
+                                    <input type="number" id="wizInvestmentActual" min="0" step="any" placeholder="0" class="w-full bg-transparent border border-black dark:border-white px-2.5 py-1.5 text-sm font-bold focus:outline-none">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. الطوارئ -->
+                        <div class="border-2 border-black dark:border-white p-3.5 bg-white dark:bg-black">
+                            <div class="flex items-center gap-2 font-extrabold text-sm mb-2.5">
+                                <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                                <span id="wizCatEmergency">الطوارئ</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-neutral-500 mb-1 wiz-lbl-planned">المخطط</label>
+                                    <input type="number" id="wizEmergencyPlanned" min="0" step="any" placeholder="0" class="w-full bg-transparent border border-black dark:border-white px-2.5 py-1.5 text-sm font-bold focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-neutral-500 mb-1 wiz-lbl-actual">الفعلي</label>
+                                    <input type="number" id="wizEmergencyActual" min="0" step="any" placeholder="0" class="w-full bg-transparent border border-black dark:border-white px-2.5 py-1.5 text-sm font-bold focus:outline-none">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- زر الحفظ وبناء الميزانية -->
+                <div class="flex flex-wrap items-center justify-end gap-3">
+                    <button type="submit" class="bg-black text-white dark:bg-white dark:text-black border-2 border-black dark:border-white px-6 py-3 font-extrabold text-sm sm:text-base shadow-brutal-sm dark:shadow-brutal-sm-white hover:opacity-90 transition-all active:translate-x-0.5 active:translate-y-0.5 flex items-center gap-2 cursor-pointer">
+                        <i data-lucide="check-square" class="w-5 h-5"></i>
+                        <span id="wizSubmitBtn">حفظ وبناء الميزانية</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- بطاقات المؤشرات الرئيسية (KPI Cards) -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 my-8">
+            <!-- إجمالي الدخل -->
+            <div class="border-2 border-black dark:border-white p-5 bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-3">
+                    <span id="lblKpiIncome" class="text-sm font-bold text-neutral-600 dark:text-neutral-400">إجمالي الدخل الفعلي</span>
+                    <div class="p-2 border border-black dark:border-white">
+                        <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="text-2xl sm:text-3xl font-extrabold tracking-tight" id="kpiIncome">0</div>
+                <div class="mt-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                    <span id="lblPlanned1">المخطط:</span> <span id="kpiPlannedIncome">0</span>
+                </div>
+            </div>
+
+            <!-- إجمالي المصروفات -->
+            <div class="border-2 border-black dark:border-white p-5 bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-3">
+                    <span id="lblKpiExpenses" class="text-sm font-bold text-neutral-600 dark:text-neutral-400">إجمالي المصروفات</span>
+                    <div class="p-2 border border-black dark:border-white">
+                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="text-2xl sm:text-3xl font-extrabold tracking-tight" id="kpiExpenses">0</div>
+                <div class="mt-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                    <span id="lblPlanned2">المخطط:</span> <span id="kpiPlannedExpenses">0</span>
+                </div>
+            </div>
+
+            <!-- التوفير والالتزامات -->
+            <div class="border-2 border-black dark:border-white p-5 bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-3">
+                    <span id="lblKpiSavings" class="text-sm font-bold text-neutral-600 dark:text-neutral-400">التوفير والالتزامات</span>
+                    <div class="p-2 border border-black dark:border-white">
+                        <i data-lucide="piggy-bank" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="text-2xl sm:text-3xl font-extrabold tracking-tight" id="kpiSavings">0</div>
+                <div class="mt-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                    <span id="lblSavingsRate">نسبة الادخار:</span> <span id="kpiSavingsRate">0%</span>
+                </div>
+            </div>
+
+            <!-- الرصيد المتبقي -->
+            <div id="kpiRemainingCard" class="border-2 border-black dark:border-white p-5 bg-black text-white dark:bg-white dark:text-black shadow-brutal dark:shadow-brutal-white flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-3">
+                    <span id="lblKpiRemaining" class="text-sm font-bold opacity-80">المتبقي للصرف</span>
+                    <div class="p-2 border border-white dark:border-black">
+                        <i data-lucide="wallet" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="text-2xl sm:text-3xl font-extrabold tracking-tight" id="kpiRemaining">0</div>
+                <!-- شريط التقدم -->
+                <div class="mt-3">
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                        <span id="lblConsumed">المستهلك من الدخل</span>
+                        <span id="spentPercentageText">0%</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-neutral-800 dark:bg-neutral-200 border border-white dark:border-black overflow-hidden">
+                        <div id="spentProgressBar" class="h-full bg-white dark:bg-black transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم إضافة بند جديد -->
+        <section class="no-print border-2 border-black dark:border-white p-5 sm:p-6 mb-8 bg-neutral-50 dark:bg-neutral-950 shadow-brutal dark:shadow-brutal-white">
+            <h2 class="text-lg font-extrabold mb-4 flex items-center gap-2">
+                <i data-lucide="plus-square" class="w-5 h-5"></i>
+                <span id="lblAddSectionTitle">إضافة بند مالي جديد</span>
+            </h2>
+            <form id="addItemForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div>
+                    <label id="lblFormCat" class="block text-xs font-bold mb-1.5">التصنيف</label>
+                    <select id="itemCategory" required class="w-full bg-white dark:bg-black border-2 border-black dark:border-white px-3 py-2.5 text-sm font-bold focus:outline-none">
+                        <option value="income" id="optIncome">مصادر الدخل</option>
+                        <option value="bills" id="optBills">فواتير والتزامات أساسية</option>
+                        <option value="expenses" id="optExpenses">مصاريف متغيرة وحياة</option>
+                        <option value="savings" id="optSavings">توفير واستثمار وديون</option>
+                    </select>
+                </div>
+                <div>
+                    <label id="lblFormName" class="block text-xs font-bold mb-1.5">اسم البند</label>
+                    <input type="text" id="itemName" placeholder="مثال: راتب، إيجار، جيم..." required class="w-full bg-white dark:bg-black border-2 border-black dark:border-white px-3 py-2 text-sm font-semibold focus:outline-none">
+                </div>
+                <div>
+                    <label id="lblFormPlanned" class="block text-xs font-bold mb-1.5">المبلغ المخطط (ج.م)</label>
+                    <input type="number" id="itemPlanned" min="0" step="any" placeholder="0" required class="w-full bg-white dark:bg-black border-2 border-black dark:border-white px-3 py-2 text-sm font-semibold focus:outline-none">
+                </div>
+                <div>
+                    <label id="lblFormActual" class="block text-xs font-bold mb-1.5">المبلغ الفعلي (ج.م)</label>
+                    <input type="number" id="itemActual" min="0" step="any" placeholder="0" required class="w-full bg-white dark:bg-black border-2 border-black dark:border-white px-3 py-2 text-sm font-semibold focus:outline-none">
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-black text-white dark:bg-white dark:text-black border-2 border-black dark:border-white py-2.5 px-4 font-extrabold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span id="lblFormSubmit">إضافة للجدول</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- قسم الرسوم البيانية (Charts Section) -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- الرسم البياني الأول: مقارنة المخطط بالفعلي -->
+            <div class="border-2 border-black dark:border-white p-5 bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-neutral-300 dark:border-neutral-800">
+                    <h3 id="lblChartCashflow" class="font-extrabold text-base">التدفق النقدي (المخطط مقابل الفعلي)</h3>
+                    <span id="lblChartBadge1" class="text-xs font-bold px-2 py-0.5 border border-black dark:border-white">مقارنة</span>
+                </div>
+                <div class="relative h-64 w-full">
+                    <canvas id="cashFlowChart"></canvas>
+                </div>
+            </div>
+
+            <!-- الرسم البياني الثاني: توزيع الميزانية -->
+            <div class="border-2 border-black dark:border-white p-5 bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-neutral-300 dark:border-neutral-800">
+                    <h3 id="lblChartAllocation" class="font-extrabold text-base">توزيع المصروفات والتوفير</h3>
+                    <span id="lblChartBadge2" class="text-xs font-bold px-2 py-0.5 border border-black dark:border-white">النسب المئوية</span>
+                </div>
+                <div class="relative h-64 w-full flex justify-center">
+                    <canvas id="allocationChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم الجداول التفصيلية -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10" id="tablesContainer">
+            <!-- يتم توليد الجداول ديناميكياً عبر JavaScript -->
+        </section>
+
+        <!-- تذييل الصفحة (Footer) -->
+        <footer class="mt-auto pt-6 border-t-2 border-black dark:border-white flex justify-center items-center text-xs sm:text-sm font-bold text-black dark:text-white">
+            <p dir="ltr" class="brand-font tracking-wide">© 2026 Hamza Tango All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // --- 1. تعريف العملات المدعومة ---
+        const CURRENCIES = {
+            EGP: { code: 'EGP', symbolAr: 'ج.م', symbolEn: 'EGP', nameAr: 'الجنيه المصري', nameEn: 'Egyptian Pound', decimals: 0 },
+            USD: { code: 'USD', symbolAr: '$', symbolEn: '$', nameAr: 'الدولار الأمريكي', nameEn: 'US Dollar', decimals: 2 },
+            SAR: { code: 'SAR', symbolAr: 'ر.س', symbolEn: 'SAR', nameAr: 'الريال السعودي', nameEn: 'Saudi Riyal', decimals: 0 },
+            GBP: { code: 'GBP', symbolAr: '£', symbolEn: '£', nameAr: 'الجنيه الإسترليني', nameEn: 'British Pound', decimals: 2 },
+            EUR: { code: 'EUR', symbolAr: '€', symbolEn: '€', nameAr: 'اليورو', nameEn: 'Euro', decimals: 2 },
+            JPY: { code: 'JPY', symbolAr: '¥', symbolEn: '¥', nameAr: 'الين الياباني', nameEn: 'Japanese Yen', decimals: 0 },
+            CNY: { code: 'CNY', symbolAr: '¥', symbolEn: '¥', nameAr: 'اليوان الصيني', nameEn: 'Chinese Yuan', decimals: 2 }
+        };
+
+        // --- 2. القاموس ثنائي اللغة (عربي / English) ---
+        const I18N = {
+            ar: {
+                langBtn: 'English',
+                wizardBtn: 'إعداد سريع',
+                exportPdf: 'تصدير PDF',
+                reset: 'تصفير الكل',
+                darkMode: 'الوضع الليلي',
+                lightMode: 'الوضع النهاري',
+                printSubtitle: 'تقرير الميزانية الشخصية الشامل',
+                wizBadge: 'خطوات سريعة لبناء ميزانيتك',
+                wizTitle: 'إعداد الميزانية الشهرية من الصفر',
+                wizDesc: 'أدخل راتبك الشهري ثم وزّع مبالغك على البنود الأساسية ليتم حساب وتخطيط كل شيء تلقائياً.',
+                wizStep1: 'ما هو مرتبك أو دخلك الشهري؟',
+                wizStep2: 'توزيع البنود الأساسية (المخطط والفعلي)',
+                wizStep2Sub: 'اترك أي بند فارغاً أو صفراً إذا لم يكن لديك مصروفات فيه حالياً.',
+                wizCatEssential: 'الالتزامات الأساسية',
+                wizCatInstallments: 'الأقساط',
+                wizCatEntertainment: 'الترفيه',
+                wizCatInvestment: 'الاستثمار',
+                wizCatEmergency: 'الطوارئ',
+                wizPlanned: 'المخطط',
+                wizActual: 'الفعلي',
+                wizSubmit: 'حفظ وبناء الميزانية',
+                kpiIncome: 'إجمالي الدخل الفعلي',
+                kpiExpenses: 'إجمالي المصروفات',
+                kpiSavings: 'التوفير والالتزامات',
+                kpiRemaining: 'المتبقي للصرف',
+                plannedPrefix: 'المخطط:',
+                savingsRate: 'نسبة الادخار:',
+                consumed: 'المستهلك من الدخل',
+                addSectionTitle: 'إضافة بند مالي مخصص',
+                formCat: 'التصنيف',
+                optIncome: 'مصادر الدخل',
+                optBills: 'الالتزامات الأساسية والأقساط',
+                optExpenses: 'مصاريف الحياة والترفيه',
+                optSavings: 'الاستثمار والطوارئ والتوفير',
+                formName: 'اسم البند',
+                formNamePlaceholder: 'مثال: بونص، جيم، اشتراكات...',
+                formPlanned: 'المبلغ المخطط',
+                formActual: 'المبلغ الفعلي',
+                formSubmit: 'إضافة للجدول',
+                chartCashflow: 'التدفق النقدي (المخطط مقابل الفعلي)',
+                chartBadge1: 'مقارنة',
+                chartAllocation: 'توزيع المصروفات والتوفير',
+                chartBadge2: 'النسب المئوية',
+                chartLabelsBar: ['الالتزامات والأقساط', 'مصاريف والترفيه', 'الاستثمار والطوارئ'],
+                chartLabelsPie: ['الالتزامات والأقساط', 'مصاريف والترفيه', 'الاستثمار والطوارئ'],
+                chartDatasetPlanned: 'المخطط',
+                chartDatasetActual: 'الفعلي',
+                tblItem: 'البند',
+                tblPlanned: 'المخطط',
+                tblActual: 'الفعلي',
+                tblProgress: 'الإنجاز',
+                tblDelete: 'حذف',
+                tblItemsCount: 'بنود',
+                tblEmpty: 'لا توجد بنود في هذا القسم حالياً (0)',
+                tblTotal: 'المجموع الكلي',
+                tblTotalPlanned: 'مخطط:',
+                tblTotalActual: 'فعلي:',
+                catTitles: {
+                    income: 'مصادر الدخل والمرتب (INCOME)',
+                    bills: 'الالتزامات الأساسية والأقساط (OBLIGATIONS & INSTALLMENTS)',
+                    expenses: 'مصاريف الحياة والترفيه (LIVING & ENTERTAINMENT)',
+                    savings: 'الاستثمار والطوارئ (INVESTMENT & EMERGENCY)'
+                },
+                toastAdded: 'تمت إضافة البند بنجاح',
+                toastUpdated: 'تم تحديث القيمة وحفظها',
+                toastDeleted: 'تم حذف البند',
+                toastReset: 'تم تصفير جميع البيانات بنجاح',
+                toastWizardBuilt: 'تم بناء ميزانيتك بنجاح!',
+                toastCurrency: 'تم تغيير العملة إلى'
+            },
+            en: {
+                langBtn: 'عربي',
+                wizardBtn: 'Quick Setup',
+                exportPdf: 'Export PDF',
+                reset: 'Reset All',
+                darkMode: 'Dark Mode',
+                lightMode: 'Light Mode',
+                printSubtitle: 'Comprehensive Personal Budget Report',
+                wizBadge: 'Quick Budget Builder',
+                wizTitle: 'Set Up Your Monthly Budget from Scratch',
+                wizDesc: 'Enter your monthly salary and allocate amounts across your core categories to calculate everything automatically.',
+                wizStep1: 'What is your monthly salary?',
+                wizStep2: 'Core Categories Allocation (Planned & Actual)',
+                wizStep2Sub: 'Leave any field empty or 0 if not applicable right now.',
+                wizCatEssential: 'Essential Obligations',
+                wizCatInstallments: 'Installments',
+                wizCatEntertainment: 'Entertainment',
+                wizCatInvestment: 'Investment',
+                wizCatEmergency: 'Emergency Fund',
+                wizPlanned: 'Planned',
+                wizActual: 'Actual',
+                wizSubmit: 'Save & Build My Budget',
+                kpiIncome: 'Total Actual Income',
+                kpiExpenses: 'Total Expenses',
+                kpiSavings: 'Savings & Investments',
+                kpiRemaining: 'Amount Left to Spend',
+                plannedPrefix: 'Planned:',
+                savingsRate: 'Savings Rate:',
+                consumed: 'Consumed of Income',
+                addSectionTitle: 'Add Custom Budget Item',
+                formCat: 'Category',
+                optIncome: 'Income Sources',
+                optBills: 'Essential Obligations & Installments',
+                optExpenses: 'Living & Entertainment',
+                optSavings: 'Investment & Emergency Fund',
+                formName: 'Item Name',
+                formNamePlaceholder: 'e.g. Bonus, Gym, Subscriptions...',
+                formPlanned: 'Planned Amount',
+                formActual: 'Actual Amount',
+                formSubmit: 'Add to Table',
+                chartCashflow: 'Cash Flow (Planned vs Actual)',
+                chartBadge1: 'Comparison',
+                chartAllocation: 'Allocation Summary',
+                chartBadge2: 'Percentages',
+                chartLabelsBar: ['Obligations & Installments', 'Living & Entertainment', 'Investment & Emergency'],
+                chartLabelsPie: ['Obligations & Installments', 'Living & Entertainment', 'Investment & Emergency'],
+                chartDatasetPlanned: 'Planned',
+                chartDatasetActual: 'Actual',
+                tblItem: 'Item',
+                tblPlanned: 'Planned',
+                tblActual: 'Actual',
+                tblProgress: 'Progress',
+                tblDelete: 'Del',
+                tblItemsCount: 'items',
+                tblEmpty: 'No items in this category yet (0)',
+                tblTotal: 'Total',
+                tblTotalPlanned: 'Planned:',
+                tblTotalActual: 'Actual:',
+                catTitles: {
+                    income: 'INCOME & SALARY',
+                    bills: 'ESSENTIAL OBLIGATIONS & INSTALLMENTS',
+                    expenses: 'LIVING & ENTERTAINMENT',
+                    savings: 'INVESTMENT & EMERGENCY FUND'
+                },
+                toastAdded: 'Item added successfully',
+                toastUpdated: 'Value updated and saved',
+                toastDeleted: 'Item deleted',
+                toastReset: 'All data cleared and reset to zero',
+                toastWizardBuilt: 'Your budget has been built!',
+                toastCurrency: 'Currency changed to'
+            }
+        };
+
+        // --- 3. الحالة الصفرية الافتراضية (Zero Initial State) ---
+        function getEmptyBudget() {
+            return {
+                income: [],
+                bills: [],
+                expenses: [],
+                savings: []
+            };
+        }
+
+        // --- 4. إدارة الحالة (State Management) ---
+        let budgetData = JSON.parse(localStorage.getItem('tangoBudgetData_v3')) || getEmptyBudget();
+        let currentCurrency = localStorage.getItem('tangoBudgetCurrency') || 'EGP';
+        let currentLang = localStorage.getItem('tangoBudgetLang') || 'ar';
+        let isDarkMode = localStorage.getItem('tangoBudgetTheme') === 'dark';
+
+        let cashFlowChartInstance = null;
+        let allocationChartInstance = null;
+
+        function isBudgetEmpty() {
+            return (
+                (!budgetData.income || budgetData.income.length === 0) &&
+                (!budgetData.bills || budgetData.bills.length === 0) &&
+                (!budgetData.expenses || budgetData.expenses.length === 0) &&
+                (!budgetData.savings || budgetData.savings.length === 0)
+            );
+        }
+
+        // --- 5. دوال المساعدة والتنسيق ---
+        function saveState() {
+            localStorage.setItem('tangoBudgetData_v3', JSON.stringify(budgetData));
+            localStorage.setItem('tangoBudgetCurrency', currentCurrency);
+            localStorage.setItem('tangoBudgetLang', currentLang);
+            localStorage.setItem('tangoBudgetTheme', isDarkMode ? 'dark' : 'light');
+        }
+
+        function formatMoney(amount) {
+            const curr = CURRENCIES[currentCurrency] || CURRENCIES.EGP;
+            const num = Number(amount) || 0;
+            const formattedNum = num.toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: curr.decimals
+            });
+
+            if (currentCurrency === 'EGP' || currentCurrency === 'SAR') {
+                const sym = currentLang === 'ar' ? curr.symbolAr : curr.symbolEn;
+                return currentLang === 'ar' ? `${formattedNum} ${sym}` : `${sym} ${formattedNum}`;
+            } else {
+                return `${curr.symbolEn}${formattedNum}`;
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toastMessage');
+            document.getElementById('toastText').textContent = message;
+            toast.classList.remove('hidden');
+            clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2600);
+        }
+
+        function getItemDisplayName(item) {
+            if (item.customName) return item.customName;
+            return currentLang === 'ar' ? (item.nameAr || item.nameEn) : (item.nameEn || item.nameAr);
+        }
+
+        // --- 6. تحديث النصوص واللغة والاتجاه ---
+        function applyLanguageAndCurrencyUI() {
+            const t = I18N[currentLang];
+            const curr = CURRENCIES[currentCurrency];
+
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+
+            const toast = document.getElementById('toastMessage');
+            if (currentLang === 'ar') {
+                toast.classList.remove('right-6');
+                toast.classList.add('left-6');
+            } else {
+                toast.classList.remove('left-6');
+                toast.classList.add('right-6');
+            }
+
+            const currName = currentLang === 'ar' ? curr.nameAr : curr.nameEn;
+            const subtitlePrefix = currentLang === 'ar' ? 'لوحة تحكم الميزانية الشخصية' : 'Personal Finance Dashboard';
+            document.getElementById('headerSubtitle').textContent = `${subtitlePrefix} • ${currName} (${curr.code})`;
+            document.getElementById('printSubtitle').textContent = t.printSubtitle;
+
+            document.getElementById('wizardBtnText').textContent = t.wizardBtn;
+            document.getElementById('langText').textContent = t.langBtn;
+            document.getElementById('exportPdfText').textContent = t.exportPdf;
+            document.getElementById('resetText').textContent = t.reset;
+            document.getElementById('themeText').textContent = isDarkMode ? t.lightMode : t.darkMode;
+
+            // ترجمة معالج الإعداد السريع
+            document.getElementById('wizBadge').textContent = t.wizBadge;
+            document.getElementById('wizTitle').textContent = t.wizTitle;
+            document.getElementById('wizDesc').textContent = t.wizDesc;
+            document.getElementById('wizStep1Label').textContent = t.wizStep1;
+            document.getElementById('wizSalaryCurrBadge').textContent = curr.code;
+            document.getElementById('wizStep2Label').textContent = t.wizStep2;
+            document.getElementById('wizStep2Sub').textContent = t.wizStep2Sub;
+            document.getElementById('wizCatEssential').textContent = t.wizCatEssential;
+            document.getElementById('wizCatInstallments').textContent = t.wizCatInstallments;
+            document.getElementById('wizCatEntertainment').textContent = t.wizCatEntertainment;
+            document.getElementById('wizCatInvestment').textContent = t.wizCatInvestment;
+            document.getElementById('wizCatEmergency').textContent = t.wizCatEmergency;
+            document.querySelectorAll('.wiz-lbl-planned').forEach(el => el.textContent = t.wizPlanned);
+            document.querySelectorAll('.wiz-lbl-actual').forEach(el => el.textContent = t.wizActual);
+            document.getElementById('wizSubmitBtn').textContent = t.wizSubmit;
+
+            document.getElementById('lblKpiIncome').textContent = t.kpiIncome;
+            document.getElementById('lblKpiExpenses').textContent = t.kpiExpenses;
+            document.getElementById('lblKpiSavings').textContent = t.kpiSavings;
+            document.getElementById('lblKpiRemaining').textContent = t.kpiRemaining;
+            document.getElementById('lblPlanned1').textContent = t.plannedPrefix;
+            document.getElementById('lblPlanned2').textContent = t.plannedPrefix;
+            document.getElementById('lblSavingsRate').textContent = t.savingsRate;
+            document.getElementById('lblConsumed').textContent = t.consumed;
+
+            document.getElementById('lblAddSectionTitle').textContent = t.addSectionTitle;
+            document.getElementById('lblFormCat').textContent = t.formCat;
+            document.getElementById('optIncome').textContent = t.optIncome;
+            document.getElementById('optBills').textContent = t.optBills;
+            document.getElementById('optExpenses').textContent = t.optExpenses;
+            document.getElementById('optSavings').textContent = t.optSavings;
+            document.getElementById('lblFormName').textContent = t.formName;
+            document.getElementById('itemName').placeholder = t.formNamePlaceholder;
+
+            const symDisplay = currentLang === 'ar' ? curr.symbolAr : curr.symbolEn;
+            document.getElementById('lblFormPlanned').textContent = `${t.formPlanned} (${symDisplay})`;
+            document.getElementById('lblFormActual').textContent = `${t.formActual} (${symDisplay})`;
+            document.getElementById('lblFormSubmit').textContent = t.formSubmit;
+
+            document.getElementById('lblChartCashflow').textContent = t.chartCashflow;
+            document.getElementById('lblChartBadge1').textContent = t.chartBadge1;
+            document.getElementById('lblChartAllocation').textContent = t.chartAllocation;
+            document.getElementById('lblChartBadge2').textContent = t.chartBadge2;
+
+            lucide.createIcons();
+        }
+
+        // --- 7. الحسابات وتحديث المؤشرات ---
+        function calculateTotals() {
+            const sumCategory = (cat) => {
+                return (budgetData[cat] || []).reduce((acc, item) => {
+                    acc.planned += Number(item.planned) || 0;
+                    acc.actual += Number(item.actual) || 0;
+                    return acc;
+                }, { planned: 0, actual: 0 });
+            };
+
+            const income = sumCategory('income');
+            const bills = sumCategory('bills');
+            const expenses = sumCategory('expenses');
+            const savings = sumCategory('savings');
+
+            const totalOutPlanned = bills.planned + expenses.planned;
+            const totalOutActual = bills.actual + expenses.actual;
+            const remainingActual = income.actual - (totalOutActual + savings.actual);
+
+            const totalAllocated = totalOutActual + savings.actual;
+            const consumedPercentage = income.actual > 0 ? Math.min(100, Math.round((totalAllocated / income.actual) * 100)) : 0;
+            const savingsRate = income.actual > 0 ? Math.round((savings.actual / income.actual) * 100) : 0;
+
+            document.getElementById('kpiIncome').textContent = formatMoney(income.actual);
+            document.getElementById('kpiPlannedIncome').textContent = formatMoney(income.planned);
+
+            document.getElementById('kpiExpenses').textContent = formatMoney(totalOutActual);
+            document.getElementById('kpiPlannedExpenses').textContent = formatMoney(totalOutPlanned);
+
+            document.getElementById('kpiSavings').textContent = formatMoney(savings.actual);
+            document.getElementById('kpiSavingsRate').textContent = `${savingsRate}%`;
+
+            document.getElementById('kpiRemaining').textContent = formatMoney(remainingActual);
+            document.getElementById('spentPercentageText').textContent = `${consumedPercentage}%`;
+            document.getElementById('spentProgressBar').style.width = `${consumedPercentage}%`;
+
+            return { income, bills, expenses, savings };
+        }
+
+        // --- 8. بناء الجداول التفصيلية ---
+        function renderTables() {
+            const container = document.getElementById('tablesContainer');
+            container.innerHTML = '';
+            const t = I18N[currentLang];
+
+            const categories = [
+                { key: 'income', icon: 'banknote' },
+                { key: 'bills', icon: 'receipt' },
+                { key: 'expenses', icon: 'shopping-bag' },
+                { key: 'savings', icon: 'shield-check' }
+            ];
+
+            categories.forEach(cat => {
+                const items = budgetData[cat.key] || [];
+                const totalPlanned = items.reduce((sum, i) => sum + (Number(i.planned) || 0), 0);
+                const totalActual = items.reduce((sum, i) => sum + (Number(i.actual) || 0), 0);
+                const totalProgress = totalPlanned > 0 ? Math.round((totalActual / totalPlanned) * 100) : 0;
+
+                const card = document.createElement('div');
+                card.className = 'border-2 border-black dark:border-white bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white flex flex-col justify-between overflow-hidden';
+
+                let rowsHTML = '';
+                if (items.length === 0) {
+                    rowsHTML = `
+                        <tr>
+                            <td colspan="5" class="py-6 text-center text-xs font-bold text-neutral-500">
+                                ${t.tblEmpty}
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    items.forEach(item => {
+                        const progress = item.planned > 0 ? Math.round((item.actual / item.planned) * 100) : (item.actual > 0 ? 100 : 0);
+                        const displayName = getItemDisplayName(item);
+                        rowsHTML += `
+                            <tr class="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
+                                <td class="py-3 px-3 font-bold text-xs sm:text-sm">${displayName}</td>
+                                <td class="py-2 px-2">
+                                    <input type="number" min="0" step="any" value="${item.planned}" 
+                                        onchange="updateItemValue('${cat.key}', ${item.id}, 'planned', this.value)"
+                                        class="w-20 sm:w-24 bg-transparent border border-neutral-400 dark:border-neutral-600 focus:border-black dark:focus:border-white px-2 py-1 text-xs sm:text-sm font-semibold focus:outline-none">
+                                </td>
+                                <td class="py-2 px-2">
+                                    <input type="number" min="0" step="any" value="${item.actual}" 
+                                        onchange="updateItemValue('${cat.key}', ${item.id}, 'actual', this.value)"
+                                        class="w-20 sm:w-24 bg-transparent border border-black dark:border-white px-2 py-1 text-xs sm:text-sm font-extrabold focus:outline-none">
+                                </td>
+                                <td class="py-3 px-2 text-xs font-extrabold">
+                                    <span class="px-1.5 py-0.5 border border-black dark:border-white ${progress >= 100 ? 'bg-black text-white dark:bg-white dark:text-black' : ''}">
+                                        ${progress}%
+                                    </span>
+                                </td>
+                                <td class="no-print py-3 px-2 text-center">
+                                    <button onclick="deleteItem('${cat.key}', ${item.id})" title="${t.tblDelete}" class="p-1 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                card.innerHTML = `
+                    <div>
+                        <div class="bg-black text-white dark:bg-white dark:text-black px-4 py-3 flex justify-between items-center border-b-2 border-black dark:border-white">
+                            <div class="flex items-center gap-2 font-extrabold text-sm sm:text-base">
+                                <i data-lucide="${cat.icon}" class="w-4 h-4"></i>
+                                <span>${t.catTitles[cat.key]}</span>
+                            </div>
+                            <span class="text-xs font-bold px-2 py-0.5 border border-white dark:border-black">${items.length} ${t.tblItemsCount}</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-start border-collapse">
+                                <thead>
+                                    <tr class="border-b-2 border-black dark:border-white text-xs font-extrabold bg-neutral-100 dark:bg-neutral-900">
+                                        <th class="py-2.5 px-3 text-start">${t.tblItem}</th>
+                                        <th class="py-2.5 px-2 text-start">${t.tblPlanned}</th>
+                                        <th class="py-2.5 px-2 text-start">${t.tblActual}</th>
+                                        <th class="py-2.5 px-2 text-start">${t.tblProgress}</th>
+                                        <th class="no-print py-2.5 px-2 text-center">${t.tblDelete}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHTML}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="bg-neutral-100 dark:bg-neutral-900 px-4 py-3 border-t-2 border-black dark:border-white flex flex-wrap justify-between items-center gap-2 text-xs sm:text-sm font-extrabold">
+                        <span>${t.tblTotal}</span>
+                        <div class="flex gap-4">
+                            <span class="text-neutral-600 dark:text-neutral-400">${t.tblTotalPlanned} ${formatMoney(totalPlanned)}</span>
+                            <span>${t.tblTotalActual} ${formatMoney(totalActual)} (${totalProgress}%)</span>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        // --- 9. تحديث الرسوم البيانية (Monochrome Chart.js) ---
+        function renderCharts(totals, forcePrintLight = false) {
+            const t = I18N[currentLang];
+            const useDarkColors = forcePrintLight ? false : isDarkMode;
+
+            const primaryColor = useDarkColors ? '#FFFFFF' : '#000000';
+            const secondaryColor = useDarkColors ? '#666666' : '#999999';
+            const tertiaryColor = useDarkColors ? '#333333' : '#CCCCCC';
+            const gridColor = useDarkColors ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)';
+            const fontFamily = currentLang === 'ar' ? 'Cairo' : 'Inter';
+
+            // 1. Bar Chart
+            const ctxBar = document.getElementById('cashFlowChart').getContext('2d');
+            if (cashFlowChartInstance) cashFlowChartInstance.destroy();
+
+            cashFlowChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: t.chartLabelsBar,
+                    datasets: [
+                        {
+                            label: t.chartDatasetPlanned,
+                            data: [totals.bills.planned, totals.expenses.planned, totals.savings.planned],
+                            backgroundColor: secondaryColor,
+                            borderColor: primaryColor,
+                            borderWidth: 1.5
+                        },
+                        {
+                            label: t.chartDatasetActual,
+                            data: [totals.bills.actual, totals.expenses.actual, totals.savings.actual],
+                            backgroundColor: primaryColor,
+                            borderColor: primaryColor,
+                            borderWidth: 1.5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: forcePrintLight ? false : { duration: 400 },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: primaryColor,
+                                font: { family: fontFamily, weight: 'bold', size: 12 },
+                                boxWidth: 14
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: primaryColor, font: { family: fontFamily, weight: 'bold' } },
+                            grid: { display: false }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: primaryColor, font: { family: fontFamily, weight: '600' } },
+                            grid: { color: gridColor }
+                        }
+                    }
+                }
+            });
+
+            // 2. Doughnut Chart
+            const ctxPie = document.getElementById('allocationChart').getContext('2d');
+            if (allocationChartInstance) allocationChartInstance.destroy();
+
+            const totalForChart = totals.bills.actual + totals.expenses.actual + totals.savings.actual;
+            const hasData = totalForChart > 0;
+
+            allocationChartInstance = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: t.chartLabelsPie,
+                    datasets: [{
+                        data: hasData
+                            ? [totals.bills.actual, totals.expenses.actual, totals.savings.actual]
+                            : [1, 1, 1],
+                        backgroundColor: hasData
+                            ? [primaryColor, secondaryColor, tertiaryColor]
+                            : [tertiaryColor, tertiaryColor, tertiaryColor],
+                        borderColor: useDarkColors ? '#000000' : '#FFFFFF',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: forcePrintLight ? false : { duration: 400 },
+                    cutout: '62%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: primaryColor,
+                                font: { family: fontFamily, weight: 'bold', size: 12 },
+                                padding: 14,
+                                boxWidth: 14
+                            }
+                        },
+                        tooltip: {
+                            enabled: hasData,
+                            callbacks: {
+                                label: function(context) {
+                                    const val = context.raw || 0;
+                                    const pct = totalForChart > 0 ? Math.round((val / totalForChart) * 100) : 0;
+                                    return ` ${context.label}: ${formatMoney(val)} (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- 10. التفاعلات وتحديث البيانات ---
+        function refreshDashboard() {
+            applyLanguageAndCurrencyUI();
+            const totals = calculateTotals();
+            renderTables();
+            renderCharts(totals, false);
+        }
+
+        window.updateItemValue = function(category, id, field, newValue) {
+            const val = Math.max(0, parseFloat(newValue) || 0);
+            const item = budgetData[category].find(i => i.id === id);
+            if (item) {
+                item[field] = val;
+                saveState();
+                refreshDashboard();
+                showToast(I18N[currentLang].toastUpdated);
+            }
+        };
+
+        window.deleteItem = function(category, id) {
+            budgetData[category] = budgetData[category].filter(i => i.id !== id);
+            saveState();
+            refreshDashboard();
+            showToast(I18N[currentLang].toastDeleted);
+        };
+
+        // إضافة بند مخصص جديد
+        document.getElementById('addItemForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const category = document.getElementById('itemCategory').value;
+            const name = document.getElementById('itemName').value.trim();
+            const planned = parseFloat(document.getElementById('itemPlanned').value) || 0;
+            const actual = parseFloat(document.getElementById('itemActual').value) || 0;
+
+            if (!name) return;
+
+            budgetData[category].push({
+                id: Date.now() + Math.random(),
+                customName: name,
+                planned: planned,
+                actual: actual
+            });
+
+            saveState();
+            refreshDashboard();
+            this.reset();
+            showToast(I18N[currentLang].toastAdded);
+        });
+
+        // معالج الإعداد السريع (Quick Setup Wizard)
+        const setupWizardSection = document.getElementById('setupWizardSection');
+
+        document.getElementById('openWizardBtn').addEventListener('click', () => {
+            setupWizardSection.classList.remove('hidden');
+            setupWizardSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        document.getElementById('closeWizardBtn').addEventListener('click', () => {
+            setupWizardSection.classList.add('hidden');
+        });
+
+        document.getElementById('quickSetupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const baseId = Date.now();
+
+            const salary = parseFloat(document.getElementById('wizSalaryInput').value) || 0;
+
+            const essP = parseFloat(document.getElementById('wizEssentialPlanned').value) || 0;
+            const essA = parseFloat(document.getElementById('wizEssentialActual').value) || 0;
+
+            const instP = parseFloat(document.getElementById('wizInstallmentsPlanned').value) || 0;
+            const instA = parseFloat(document.getElementById('wizInstallmentsActual').value) || 0;
+
+            const entP = parseFloat(document.getElementById('wizEntertainmentPlanned').value) || 0;
+            const entA = parseFloat(document.getElementById('wizEntertainmentActual').value) || 0;
+
+            const invP = parseFloat(document.getElementById('wizInvestmentPlanned').value) || 0;
+            const invA = parseFloat(document.getElementById('wizInvestmentActual').value) || 0;
+
+            const emgP = parseFloat(document.getElementById('wizEmergencyPlanned').value) || 0;
+            const emgA = parseFloat(document.getElementById('wizEmergencyActual').value) || 0;
+
+            // إضافة المرتب إذا كان أكبر من صفر
+            if (salary > 0) {
+                budgetData.income.push({
+                    id: baseId + 1,
+                    nameAr: 'المرتب الشهري',
+                    nameEn: 'Monthly Salary',
+                    planned: salary,
+                    actual: salary
+                });
+            }
+
+            // 1. الالتزامات الأساسية -> bills
+            if (essP > 0 || essA > 0) {
+                budgetData.bills.push({
+                    id: baseId + 2,
+                    nameAr: 'الالتزامات الأساسية',
+                    nameEn: 'Essential Obligations',
+                    planned: essP,
+                    actual: essA
+                });
+            }
+
+            // 2. الأقساط -> bills
+            if (instP > 0 || instA > 0) {
+                budgetData.bills.push({
+                    id: baseId + 3,
+                    nameAr: 'الأقساط',
+                    nameEn: 'Installments',
+                    planned: instP,
+                    actual: instA
+                });
+            }
+
+            // 3. الترفيه -> expenses
+            if (entP > 0 || entA > 0) {
+                budgetData.expenses.push({
+                    id: baseId + 4,
+                    nameAr: 'الترفيه',
+                    nameEn: 'Entertainment',
+                    planned: entP,
+                    actual: entA
+                });
+            }
+
+            // 4. الاستثمار -> savings
+            if (invP > 0 || invA > 0) {
+                budgetData.savings.push({
+                    id: baseId + 5,
+                    nameAr: 'الاستثمار',
+                    nameEn: 'Investment',
+                    planned: invP,
+                    actual: invA
+                });
+            }
+
+            // 5. الطوارئ -> savings
+            if (emgP > 0 || emgA > 0) {
+                budgetData.savings.push({
+                    id: baseId + 6,
+                    nameAr: 'الطوارئ',
+                    nameEn: 'Emergency Fund',
+                    planned: emgP,
+                    actual: emgA
+                });
+            }
+
+            saveState();
+            refreshDashboard();
+            this.reset();
+            setupWizardSection.classList.add('hidden');
+            showToast(I18N[currentLang].toastWizardBuilt);
+        });
+
+        // تغيير العملة
+        const currencySelector = document.getElementById('currencySelector');
+        currencySelector.value = currentCurrency;
+        currencySelector.addEventListener('change', function(e) {
+            currentCurrency = e.target.value;
+            saveState();
+            refreshDashboard();
+            const currObj = CURRENCIES[currentCurrency];
+            const currLabel = currentLang === 'ar' ? currObj.nameAr : currObj.nameEn;
+            showToast(`${I18N[currentLang].toastCurrency} ${currLabel} (${currObj.code})`);
+        });
+
+        // تبديل اللغة
+        document.getElementById('langToggle').addEventListener('click', () => {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            saveState();
+            refreshDashboard();
+        });
+
+        // تبديل الوضع الليلي / النهاري
+        function applyTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            if (isDarkMode) {
+                html.classList.add('dark');
+                themeIcon.setAttribute('data-lucide', 'sun');
+            } else {
+                html.classList.remove('dark');
+                themeIcon.setAttribute('data-lucide', 'moon');
+            }
+            lucide.createIcons();
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            saveState();
+            applyTheme();
+            refreshDashboard();
+        });
+
+        // تصفير الكل (Reset All to Zero)
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            budgetData = getEmptyBudget();
+            saveState();
+            refreshDashboard();
+            document.getElementById('quickSetupForm').reset();
+            setupWizardSection.classList.remove('hidden');
+            showToast(I18N[currentLang].toastReset);
+        });
+
+        // تصدير التقرير PDF
+        document.getElementById('exportPdfBtn').addEventListener('click', () => {
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+            document.getElementById('printDate').textContent = `Date: ${dateStr}`;
+            document.getElementById('printCurrencyInfo').textContent = `Currency: ${currentCurrency}`;
+
+            const totals = calculateTotals();
+            renderCharts(totals, true);
+
+            setTimeout(() => {
+                window.print();
+                renderCharts(totals, false);
+            }, 250);
+        });
+
+        // التشغيل الأولي عند تحميل الصفحة
+        window.addEventListener('DOMContentLoaded', () => {
+            applyTheme();
+            if (isBudgetEmpty()) {
+                setupWizardSection.classList.remove('hidden');
+            } else {
+                setupWizardSection.classList.add('hidden');
+            }
+            refreshDashboard();
+        });
+    </script>
+</body>
+</html>
