@@ -455,8 +455,7 @@
             document.getElementById('btn-add-extra').textContent = t.btnAddExtra;
 
             document.getElementById('chart-pie-title').textContent = t.chartPie;
-            const badgePie = document.getElementById('chart-badge-pie');
-if (badgePie) badgePie.textContent = t.chartBadgePie;
+            document.getElementById('chart-badge-pie').textContent = t.chartBadgePie;
             document.getElementById('chart-bar-title').textContent = t.chartBar;
             document.getElementById('chart-badge-bar').textContent = t.chartBadgeBar;
             document.getElementById('sections-main-title').textContent = t.sectionsTitle;
@@ -494,6 +493,8 @@ if (badgePie) badgePie.textContent = t.chartBadgePie;
                     </div>
                 `).join('');
             }
+        }
+
         function saveBaseSalary() {
             const val = parseFloat(document.getElementById('salary-input').value);
             if (!val || val <= 0) return;
@@ -837,20 +838,18 @@ function formatCurrency(val) {
                 }
             } catch (e) {}
         }
-document.addEventListener('click', (e) => {
-  // نتأكد إن الضغطة جت على زرار اللغة أو الأيقونة/الكلام اللي جواه
-  const btn = e.target.closest('#lang-btn');
-  if (!btn) return;
-
-  // 1. نعكس اللغة
+ document.getElementById('lang-btn').addEventListener('click', () => {
+  // 1. بنعكس اللغة في المتغير الأساسي للموقع
   currentLang = currentLang === 'ar' ? 'en' : 'ar';
 
-  // 2. نغير اتجاه ولغة الصفحة
+  // 2. بنغير اتجاه ولغة الصفحة
   document.documentElement.lang = currentLang;
   document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
 
-  // 3. نشغل دوال الترجمة
+  // 3. بنشغل دالة الترجمة الأصلية بتاعتك (اللي فيها سطر 438)
   updateLanguageUI();
+     
+  // 4. بنحدث صندوق الدخل والعملة
   updateIncomeBoxUI();
 });
 </script>
