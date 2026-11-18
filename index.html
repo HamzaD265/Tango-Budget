@@ -71,9 +71,9 @@
                 <!-- Currency Selector -->
                 <div class="relative">
                     <select id="currency-select" class="bg-white dark:bg-black border-2 border-black dark:border-white px-3 py-2 font-bold text-sm shadow-brutal-sm dark:shadow-brutal-sm-white focus:outline-none cursor-pointer">
-                        <option value="EGP">ج.م (EGP)</option>
+                        <option value="EGP">  (EGP)</option>
                         <option value="USD">$ (USD)</option>
-                        <option value="SAR">ر.س (SAR)</option>
+                        <option value="SAR">  (SAR)</option>
                         <option value="GBP">£ (GBP)</option>
                         <option value="EUR">€ (EUR)</option>
                         <option value="JPY">¥ (JPY)</option>
@@ -276,7 +276,7 @@
     if (currentLang === 'en') {
         return currentCurrency; // يعرض SAR, EGP, USD كما هي بالإنجليزية
     }
-    const arSymbols = { EGP: 'ج.م', USD: '$', SAR: 'ر.س', GBP: '£', EUR: '€', JPY: '¥', CNY: '¥' };
+    const arSymbols = { EGP: 'E£', USD: '$', SAR: '⃁', GBP: '£', EUR: '€', JPY: '¥', CNY: '¥' };
     return arSymbols[currentCurrency] || currentCurrency;
     }
 
