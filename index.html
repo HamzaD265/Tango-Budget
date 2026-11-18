@@ -837,18 +837,20 @@ function formatCurrency(val) {
                 }
             } catch (e) {}
         }
- document.getElementById('lang-btn').addEventListener('click', () => {
-  // 1. بنعكس اللغة في المتغير الأساسي للموقع
+document.addEventListener('click', (e) => {
+  // نتأكد إن الضغطة جت على زرار اللغة أو الأيقونة/الكلام اللي جواه
+  const btn = e.target.closest('#lang-btn');
+  if (!btn) return;
+
+  // 1. نعكس اللغة
   currentLang = currentLang === 'ar' ? 'en' : 'ar';
 
-  // 2. بنغير اتجاه ولغة الصفحة
+  // 2. نغير اتجاه ولغة الصفحة
   document.documentElement.lang = currentLang;
   document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
 
-  // 3. بنشغل دالة الترجمة الأصلية بتاعتك (اللي فيها سطر 438)
+  // 3. نشغل دوال الترجمة
   updateLanguageUI();
-     
-  // 4. بنحدث صندوق الدخل والعملة
   updateIncomeBoxUI();
 });
 </script>
