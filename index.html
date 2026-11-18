@@ -344,7 +344,7 @@
             },
             en: {
                 chartBar: "Budget Categories Comparison",
-                chartBadgeBar: "Financial Analysis",   
+                chartBar: "Financial Analysis",   
                 subTitle: "(Personal Finance Dashboard)",
                 btnPdf: "Export PDF",
                 btnReset: "Reset All",
@@ -464,7 +464,6 @@
 
         // Top Income Box Logic
         function updateIncomeBoxUI() {
-            const t = translations[currentLang];
             const box = document.getElementById('income-prompt-box');
             const stepSalary = document.getElementById('step-salary');
             const stepExtra = document.getElementById('step-extra-income');
@@ -479,13 +478,11 @@
             if (incomeSources.length === 0) {
                 stepSalary.classList.remove('hidden');
                 stepExtra.classList.add('hidden');
-             } else {
-    stepSalary.classList.add('hidden');
-    stepExtra.classList.remove('hidden');
-    if (incomeSources[0]) {
-      incomeSources[0].name = t.baseSalaryLabel;
-    }
-  }
+            } else {
+                stepSalary.classList.add('hidden');
+                stepExtra.classList.remove('hidden');
+
+                // Render chips for added income sources
                 listEl.innerHTML = incomeSources.map(src => `
                     <div class="inline-flex items-center gap-2 border-2 border-black dark:border-white px-3 py-1 text-xs font-bold bg-gray-100 dark:bg-gray-900">
                         <span>${src.name}: ${formatCurrency(src.amount)}</span>
@@ -838,20 +835,27 @@ function formatCurrency(val) {
                 }
             } catch (e) {}
         }
- document.getElementById('lang-btn').addEventListener('click', () => {
-  // 1. بنعكس اللغة في المتغير الأساسي للموقع
-  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+    </script>
+    <script>
+  // 1. بنمسك الزرار والنص اللي جواه
+  const langBtn = document.getElementById('lang-btn');
+  const langText = document.getElementById('lang-text');
 
-  // 2. بنغير اتجاه ولغة الصفحة
-  document.documentElement.lang = currentLang;
-  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-
-  // 3. بنشغل دالة الترجمة الأصلية بتاعتك (اللي فيها سطر 438)
-  updateLanguageUI();
-     
-  // 4. بنحدث صندوق الدخل والعملة
-  updateIncomeBoxUI();
-});
+  // 2. بنضيف حدث عند الضغط على الزرار
+  langBtn.addEventListener('click', () => {
+    // بنشوف النص الحالي المكتوب جوا الزرار
+    if (langText.textContent.trim() === 'English') {
+      // لو مكتوب English (يعني الموقع حالياً عربي وهنحوله إنجليزي)
+      langText.textContent = 'العربية'; // نغير الزرار لعكس اللغة
+      document.documentElement.lang = 'en';
+      document.documentElement.dir = 'ltr';
+    } else {
+      // لو مكتوب العربية (يعني الموقع حالياً إنجليزي وهنحوله عربي)
+      langText.textContent = 'English'; // نرجع الزرار لـ English
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+    }
+  });
 </script>
 </body>
 </html>
