@@ -455,7 +455,8 @@
             document.getElementById('btn-add-extra').textContent = t.btnAddExtra;
 
             document.getElementById('chart-pie-title').textContent = t.chartPie;
-            document.getElementById('chart-badge-pie').textContent = t.chartBadgePie;
+            const badgePie = document.getElementById('chart-badge-pie');
+if (badgePie) badgePie.textContent = t.chartBadgePie;
             document.getElementById('chart-bar-title').textContent = t.chartBar;
             document.getElementById('chart-badge-bar').textContent = t.chartBadgeBar;
             document.getElementById('sections-main-title').textContent = t.sectionsTitle;
