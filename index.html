@@ -271,7 +271,15 @@
         let isDarkMode = false;
         let extraIncomeDismissed = false;
 
-        const currencySymbols = { EGP: 'ج.م', USD: '$', SAR: 'ر.س', GBP: '£', EUR: '€', JPY: '¥', CNY: '¥' };
+        function getCurrencySymbol()
+ {
+    if (currentLang === 'en') {
+        return currentCurrency; // يعرض SAR, EGP, USD كما هي بالإنجليزية
+    }
+    const arSymbols = { EGP: 'ج.م', USD: '$', SAR: 'ر.س', GBP: '£', EUR: '€', JPY: '¥', CNY: '¥' };
+    return arSymbols[currentCurrency] || currentCurrency;
+    }
+
 
         // State Data
         let incomeSources = []; // [{ id, name, amount }]
@@ -597,11 +605,10 @@
             lucide.createIcons();
         }
 
-        function formatCurrency(val) {
-            const sym = currencySymbols[currentCurrency] || currentCurrency;
-            return `${val.toLocaleString()} ${sym}`;
-        }
-
+function formatCurrency(val) {
+    const sym = getCurrencySymbol();
+    return currentLang === 'ar' ? `${val.toLocaleString()} ${sym}` : `${sym} ${val.toLocaleString()}`;
+}
         function updateItem(category, id, value) {
             const item = expenseCategories[category].find(i => i.id === id);
             if (item) {
