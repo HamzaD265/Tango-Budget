@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -835,7 +835,6 @@ function formatCurrency(val) {
                 }
             } catch (e) {}
         }
-    </script>
     <script>
   // 1. بنمسك الزرار والنص اللي جواه
   const langBtn = document.getElementById('lang-btn');
@@ -846,7 +845,7 @@ function formatCurrency(val) {
     // بنشوف النص الحالي المكتوب جوا الزرار
     if (langText.textContent.trim() === 'English') {
       // لو مكتوب English (يعني الموقع حالياً عربي وهنحوله إنجليزي)
-      langText.textContent = 'العربية'; // نغير الزرار لعكس اللغة
+      langText.textContent = 'Arabic'; 
       document.documentElement.lang = 'en';
       document.documentElement.dir = 'ltr';
     } else {
