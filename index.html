@@ -305,8 +305,6 @@
 
         const translations = {
             ar: {
-                kpiIncomeSub: "الراتب الأساسي ومصادر الدخل",
-                kpiExpensesSub: "الالتزامات والأقساط والترفيه",
                 subTitle: "(لوحة تحكم الميزانية الشخصية)",
                 btnPdf: "تصدير PDF",
                 btnReset: "تصفير الكل",
@@ -345,8 +343,6 @@
                 baseSalaryLabel: "الراتب الأساسي"
             },
             en: {
-                kpiIncomeSub: "Base salary & extra income",
-                kpiExpensesSub: "Obligations, installments & living",
                 subTitle: "(Personal Finance Dashboard)",
                 btnPdf: "Export PDF",
                 btnReset: "Reset All",
@@ -443,10 +439,6 @@
             document.getElementById('btn-reset').textContent = t.btnReset;
             document.getElementById('kpi-income-title').textContent = t.kpiIncome;
             document.getElementById('kpi-expenses-title').textContent = t.kpiExpenses;
-            
-            document.getElementById('kpi-income-sub').textContent = t.kpiIncomeSub;
-            document.getElementById('kpi-expenses-sub').textContent = t.kpiExpensesSub;
-            
             document.getElementById('kpi-savings-title').textContent = t.kpiSavings;
             document.getElementById('kpi-remaining-title').textContent = t.kpiRemaining;
             
@@ -461,11 +453,12 @@
             document.getElementById('btn-add-extra').textContent = t.btnAddExtra;
 
             document.getElementById('chart-pie-title').textContent = t.chartPie;
+            document.getElementById('chart-badge-pie').textContent = t.chartBadgePie;
             document.getElementById('chart-bar-title').textContent = t.chartBar;
             document.getElementById('chart-badge-bar').textContent = t.chartBadgeBar;
             document.getElementById('sections-main-title').textContent = t.sectionsTitle;
-            document.getElementById('lang-text').textContent = currentLang === 'ar' ? 'English' : 'Arabic';
-            
+            document.getElementById('lang-text').textContent = currentLang === 'ar' ? 'English' : 'عربي';
+        }
 
         // Top Income Box Logic
         function updateIncomeBoxUI() {
