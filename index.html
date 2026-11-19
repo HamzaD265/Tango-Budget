@@ -39,7 +39,7 @@
         }
     </script>
     <style>
-        body { font-family: 'Cairo', sans-serif; }
+        body { font-family: 'Cairo', 'Inter', sans-serif; }
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         @media print {
@@ -62,7 +62,7 @@
                 </div>
                 <div>
                     <h1 class="font-brand font-bold text-xl lg:text-2xl tracking-tight">Tango Budget</h1>
-                    <p class="text-xs text-gray-600 dark:text-gray-400" id="sub-title">(لوحة تحكم الميزانية الشخصية)</p>
+                    <p class="text-xs text-gray-600 dark:text-gray-400" id="sub-title">(Personal Finance Dashboard)</p>
                 </div>
             </div>
 
@@ -84,25 +84,25 @@
                 <!-- Language Toggle -->
                 <button id="lang-btn" class="border-2 border-black dark:border-white px-3 py-2 font-bold text-sm shadow-brutal-sm dark:shadow-brutal-sm-white bg-white dark:bg-black hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center gap-1.5">
                     <i data-lucide="globe" class="w-4 h-4"></i>
-                    <span id="lang-text">English</span>
+                    <span id="lang-text">العربية</span>
                 </button>
 
                 <!-- PDF Export -->
                 <button onclick="window.print()" class="border-2 border-black dark:border-white px-3 py-2 font-bold text-sm shadow-brutal-sm dark:shadow-brutal-sm-white bg-white dark:bg-black hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center gap-1.5">
                     <i data-lucide="file-text" class="w-4 h-4"></i>
-                    <span id="btn-pdf">تصدير PDF</span>
+                    <span id="btn-pdf">Export PDF</span>
                 </button>
 
                 <!-- Reset Button -->
                 <button onclick="resetBudget()" class="border-2 border-black dark:border-white px-3 py-2 font-bold text-sm shadow-brutal-sm dark:shadow-brutal-sm-white bg-white dark:bg-black hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center gap-1.5">
                     <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                    <span id="btn-reset">تصفير الكل</span>
+                    <span id="btn-reset">Reset All</span>
                 </button>
 
                 <!-- Theme Toggle -->
                 <button id="theme-toggle" class="border-2 border-black dark:border-white px-3 py-2 font-bold text-sm shadow-brutal-sm dark:shadow-brutal-sm-white bg-black text-white dark:bg-white dark:text-black hover:opacity-90 transition flex items-center gap-1.5">
-                    <i data-lucide="moon" class="w-4 h-4" id="theme-icon"></i>
-                    <span id="theme-text">الوضع الليلي</span>
+                    <i data-lucide="sun" class="w-4 h-4" id="theme-icon"></i>
+                    <span id="theme-text">Light Mode</span>
                 </button>
             </div>
 
@@ -118,52 +118,52 @@
             <!-- Card 1: Total Income -->
             <div class="border-4 border-black dark:border-white p-6 bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white relative">
                 <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-sm font-bold text-gray-600 dark:text-gray-400" id="kpi-income-title">إجمالي الدخل</h3>
+                    <h3 class="text-sm font-bold text-gray-600 dark:text-gray-400" id="kpi-income-title">Total Income</h3>
                     <div class="border-2 border-black dark:border-white p-1.5 bg-gray-50 dark:bg-gray-900">
                         <i data-lucide="wallet" class="w-4 h-4"></i>
                     </div>
                 </div>
-                <div class="text-3xl font-extrabold tracking-tight mb-2" id="total-income-display">0 ج.م</div>
-                <p class="text-xs text-gray-500 dark:text-gray-400" id="income-sources-summary">الراتب الأساسي ومصادر الدخل</p>
+                <div class="text-3xl font-extrabold tracking-tight mb-2" id="total-income-display">EGP 0</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400" id="income-sources-summary">Base salary & income sources</p>
             </div>
 
             <!-- Card 2: Total Expenses -->
             <div class="border-4 border-black dark:border-white p-6 bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white relative">
                 <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-sm font-bold text-gray-600 dark:text-gray-400" id="kpi-expenses-title">إجمالي المصروفات</h3>
+                    <h3 class="text-sm font-bold text-gray-600 dark:text-gray-400" id="kpi-expenses-title">Total Expenses</h3>
                     <div class="border-2 border-black dark:border-white p-1.5 bg-gray-50 dark:bg-gray-900">
                         <i data-lucide="trending-down" class="w-4 h-4"></i>
                     </div>
                 </div>
-                <div class="text-3xl font-extrabold tracking-tight mb-2" id="total-expenses-display">0 ج.م</div>
-                <p class="text-xs text-gray-500 dark:text-gray-400" id="expenses-desc-card">الالتزامات والأقساط والترفيه</p>
+                <div class="text-3xl font-extrabold tracking-tight mb-2" id="total-expenses-display">EGP 0</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400" id="expenses-desc-card">Obligations, installments & entertainment</p>
             </div>
 
             <!-- Card 3: Savings & Investments -->
             <div class="border-4 border-black dark:border-white p-6 bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white relative">
                 <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-sm font-bold text-gray-600 dark:text-gray-400" id="kpi-savings-title">الاستثمار والطوارئ</h3>
+                    <h3 class="text-sm font-bold text-gray-600 dark:text-gray-400" id="kpi-savings-title">Investment & Emergency</h3>
                     <div class="border-2 border-black dark:border-white p-1.5 bg-gray-50 dark:bg-gray-900">
                         <i data-lucide="trending-up" class="w-4 h-4"></i>
                     </div>
                 </div>
-                <div class="text-3xl font-extrabold tracking-tight mb-2" id="total-savings-display">0 ج.م</div>
-                <p class="text-xs text-gray-500 dark:text-gray-400" id="savings-ratio-text">نسبة الادخار: 0%</p>
+                <div class="text-3xl font-extrabold tracking-tight mb-2" id="total-savings-display">EGP 0</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400" id="savings-ratio-text">Savings Ratio: 0%</p>
             </div>
 
             <!-- Card 4: Remaining Balance -->
             <div class="border-4 border-black dark:border-white p-6 bg-black text-white dark:bg-white dark:text-black shadow-brutal dark:shadow-brutal-white relative">
                 <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-sm font-bold opacity-90" id="kpi-remaining-title">المتبقي للصرف</h3>
+                    <h3 class="text-sm font-bold opacity-90" id="kpi-remaining-title">Remaining to Spend</h3>
                     <div class="border-2 border-white dark:border-black p-1.5 bg-white/10 dark:bg-black/10">
                         <i data-lucide="credit-card" class="w-4 h-4"></i>
                     </div>
                 </div>
-                <div class="text-3xl font-extrabold tracking-tight mb-2" id="total-remaining-display">0 ج.م</div>
+                <div class="text-3xl font-extrabold tracking-tight mb-2" id="total-remaining-display">EGP 0</div>
                 <div class="w-full bg-white/20 dark:bg-black/20 h-2 border border-white dark:border-black mt-3">
                     <div id="remaining-progress" class="bg-white dark:bg-black h-full w-0 transition-all duration-300"></div>
                 </div>
-                <p class="text-xs mt-1.5 opacity-90" id="remaining-subtitle">المستهلك من الدخل: 0%</p>
+                <p class="text-xs mt-1.5 opacity-90" id="remaining-subtitle">Consumed of Income: 0%</p>
             </div>
 
         </div>
@@ -178,14 +178,14 @@
                         <i data-lucide="banknote" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-extrabold" id="salary-question-title">ما هو راتبك الشهري الأساسي؟</h3>
-                        <p class="text-xs text-gray-600 dark:text-gray-400" id="salary-question-sub">أدخل قيمة راتبك للبدء في تقسيم ميزانيتك</p>
+                        <h3 class="text-lg font-extrabold" id="salary-question-title">What is your base monthly salary?</h3>
+                        <p class="text-xs text-gray-600 dark:text-gray-400" id="salary-question-sub">Enter your salary to start organizing your budget</p>
                     </div>
                 </div>
                 <div class="flex w-full md:w-auto items-center gap-3">
-                    <input type="number" id="salary-input" placeholder="مثال: 15000" class="w-full md:w-56 border-2 border-black dark:border-white bg-white dark:bg-black px-4 py-2.5 font-extrabold text-base shadow-brutal-sm dark:shadow-brutal-sm-white focus:outline-none">
+                    <input type="number" id="salary-input" placeholder="Like: 15000" class="w-full md:w-56 border-2 border-black dark:border-white bg-white dark:bg-black px-4 py-2.5 font-extrabold text-base shadow-brutal-sm dark:shadow-brutal-sm-white focus:outline-none">
                     <button onclick="saveBaseSalary()" class="border-2 border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-6 py-2.5 font-extrabold text-sm shadow-brutal-sm dark:shadow-brutal-sm-white hover:opacity-90 whitespace-nowrap" id="btn-save-salary">
-                        اعتماد الراتب
+                        Set Salary
                     </button>
                 </div>
             </div>
@@ -195,18 +195,18 @@
                 <div class="flex items-center justify-between border-b-2 border-dashed border-black dark:border-white pb-3">
                     <div class="flex items-center gap-2.5">
                         <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                        <h3 class="text-base font-extrabold" id="extra-income-title">هل لديك مصدر دخل آخر تود إضافته؟ (عمل حر، بونص، أرباح...)</h3>
+                        <h3 class="text-base font-extrabold" id="extra-income-title">Do you have another income source to add? (Freelance, Bonus...)</h3>
                     </div>
-                    <button onclick="dismissExtraIncome()" title="إغلاق" class="p-1.5 border-2 border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition">
+                    <button id="dismiss-extra-btn" onclick="dismissExtraIncome()" title="Close" class="p-1.5 border-2 border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition">
                         <i data-lucide="x" class="w-4 h-4"></i>
                     </button>
                 </div>
 
                 <div class="flex flex-col md:flex-row items-center gap-3">
-                    <input type="text" id="extra-source-name" placeholder="اسم المصدر (مثال: عمل حر / Freelance)" class="w-full md:flex-1 border-2 border-black dark:border-white bg-white dark:bg-black px-3.5 py-2 font-bold text-sm focus:outline-none">
-                    <input type="number" id="extra-source-amount" placeholder="المبلغ" class="w-full md:w-44 border-2 border-black dark:border-white bg-white dark:bg-black px-3.5 py-2 font-bold text-sm focus:outline-none">
+                    <input type="text" id="extra-source-name" placeholder="Source name (Like: Freelance)" class="w-full md:flex-1 border-2 border-black dark:border-white bg-white dark:bg-black px-3.5 py-2 font-bold text-sm focus:outline-none">
+                    <input type="number" id="extra-source-amount" placeholder="Amount" class="w-full md:w-44 border-2 border-black dark:border-white bg-white dark:bg-black px-3.5 py-2 font-bold text-sm focus:outline-none">
                     <button onclick="addExtraIncome()" class="w-full md:w-auto border-2 border-black dark:border-white bg-black text-white dark:bg-white dark:text-black px-5 py-2 font-bold text-sm shadow-brutal-sm dark:shadow-brutal-sm-white hover:opacity-90 whitespace-nowrap" id="btn-add-extra">
-                        + إضافة للدخل
+                        + Add Income
                     </button>
                 </div>
 
@@ -222,7 +222,7 @@
             <!-- Doughnut Chart: Sorted Expenses Breakdown -->
             <div class="border-4 border-black dark:border-white p-6 bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white">
                 <div class="flex justify-between items-center mb-6 border-b-2 border-black dark:border-white pb-3">
-                    <h3 class="font-bold text-lg" id="chart-pie-title">توزيع المصروفات والاستثمار (مرتب الأقسام)</h3>
+                    <h3 class="font-bold text-lg" id="chart-pie-title">Expenses & Investment Breakdown (Sorted)</h3>
                 </div>
                 <div class="relative h-72 flex items-center justify-center">
                     <canvas id="expensesDoughnutChart"></canvas>
@@ -232,8 +232,8 @@
             <!-- Bar Chart: Category Comparison -->
             <div class="border-4 border-black dark:border-white p-6 bg-white dark:bg-black shadow-brutal dark:shadow-brutal-white">
                 <div class="flex justify-between items-center mb-6 border-b-2 border-black dark:border-white pb-3">
-                    <h3 class="font-bold text-lg" id="chart-bar-title">مقارنة أقسام الميزانية</h3>
-                    <span class="text-xs font-bold border-2 border-black dark:border-white px-2.5 py-1" id="chart-badge-bar">تحليل مالي</span>
+                    <h3 class="font-bold text-lg" id="chart-bar-title">Budget Categories Comparison</h3>
+                    <span class="text-xs font-bold border-2 border-black dark:border-white px-2.5 py-1" id="chart-badge-bar">Financial Analysis</span>
                 </div>
                 <div class="relative h-72 flex items-center justify-center">
                     <canvas id="cashflowBarChart"></canvas>
@@ -244,7 +244,7 @@
 
         <!-- 4 Organized Expense & Savings Tables (Bottom - Clean 2x2 Grid) -->
         <div class="space-y-6">
-            <h2 class="text-2xl font-extrabold border-b-4 border-black dark:border-white pb-2" id="sections-main-title">تقسيم المصروفات والادخار</h2>
+            <h2 class="text-2xl font-extrabold border-b-4 border-black dark:border-white pb-2" id="sections-main-title">Expenses & Savings Breakdown</h2>
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="tables-container">
                 <!-- 4 Tables injected via JS -->
@@ -261,47 +261,74 @@
     <!-- Notification Toast -->
     <div id="toast" class="fixed bottom-6 left-6 border-4 border-black dark:border-white bg-white dark:bg-black px-5 py-3 shadow-brutal dark:shadow-brutal-white font-bold text-sm z-50 transition-all duration-300 transform translate-y-32 opacity-0 flex items-center gap-2">
         <i data-lucide="check-circle-2" class="w-5 h-5"></i>
-        <span id="toast-msg">تمت العملية بنجاح</span>
+        <span id="toast-msg">Done</span>
     </div>
 
     <!-- JavaScript Logic -->
     <script>
-        let currentLang = 'ar';
+        let currentLang = 'en';
         let currentCurrency = 'EGP';
-        let isDarkMode = false;
+        let isDarkMode = document.documentElement.classList.contains('dark');
         let extraIncomeDismissed = false;
 
-        function getCurrencySymbol()
- {
-    if (currentLang === 'en') {
-        return currentCurrency; // يعرض SAR, EGP, USD كما هي بالإنجليزية
-    }
-    const arSymbols = { EGP: 'E£', USD: '$', SAR: '⃁', GBP: '£', EUR: '€', JPY: '¥', CNY: '¥' };
-    return arSymbols[currentCurrency] || currentCurrency;
-    }
-
+        function getCurrencySymbol() {
+            if (currentLang === 'en') {
+                return currentCurrency;
+            }
+            const arSymbols = { EGP: 'E£', USD: '$', SAR: '⃁', GBP: '£', EUR: '€', JPY: '¥', CNY: '¥' };
+            return arSymbols[currentCurrency] || currentCurrency;
+        }
 
         // State Data
-        let incomeSources = []; // [{ id, name, amount }]
-        
-        let expenseCategories = {
-            obligations: [
-                { id: 1, name: 'الإيجار / السكن', amount: 0 },
-                { id: 2, name: 'الفواتير والمرافق (كهرباء، نت، مياه)', amount: 0 },
-                { id: 3, name: 'الطعام والمقاضي الأساسية', amount: 0 }
-            ],
-            installments: [
-                { id: 4, name: 'الأقساط والديون الشهرية', amount: 0 }
-            ],
-            entertainment: [
-                { id: 5, name: 'الخروجات والترفيه والتسلية', amount: 0 },
-                { id: 6, name: 'الاشتراكات والتطبيقات', amount: 0 }
-            ],
-            investment: [
-                { id: 7, name: 'الاستثمار والادخار (أسهم / ذهب)', amount: 0 },
-                { id: 8, name: 'صندوق الطوارئ', amount: 0 }
-            ]
+        let incomeSources = []; // [{ id, name, amount, isBaseSalary }]
+
+        const defaultItems = {
+            rent: { ar: 'الإيجار / السكن', en: 'Rent / Housing' },
+            bills: { ar: 'الفواتير والمرافق (كهرباء، نت، مياه)', en: 'Bills & Utilities (Power, Internet, Water)' },
+            food: { ar: 'الطعام والمقاضي الأساسية', en: 'Food & Groceries' },
+            installments: { ar: 'الأقساط والديون الشهرية', en: 'Monthly Installments & Debts' },
+            entertainment: { ar: 'الخروجات والترفيه والتسلية', en: 'Outings & Entertainment' },
+            subscriptions: { ar: 'الاشتراكات والتطبيقات', en: 'Subscriptions & Apps' },
+            investment: { ar: 'الاستثمار والادخار (أسهم / ذهب)', en: 'Investment & Savings (Stocks / Gold)' },
+            emergency: { ar: 'صندوق الطوارئ', en: 'Emergency Fund' }
         };
+
+        function createDefaultCategories() {
+            return {
+                obligations: [
+                    { id: 1, key: 'rent', name: 'Rent / Housing', amount: 0 },
+                    { id: 2, key: 'bills', name: 'Bills & Utilities (Power, Internet, Water)', amount: 0 },
+                    { id: 3, key: 'food', name: 'Food & Groceries', amount: 0 }
+                ],
+                installments: [
+                    { id: 4, key: 'installments', name: 'Monthly Installments & Debts', amount: 0 }
+                ],
+                entertainment: [
+                    { id: 5, key: 'entertainment', name: 'Outings & Entertainment', amount: 0 },
+                    { id: 6, key: 'subscriptions', name: 'Subscriptions & Apps', amount: 0 }
+                ],
+                investment: [
+                    { id: 7, key: 'investment', name: 'Investment & Savings (Stocks / Gold)', amount: 0 },
+                    { id: 8, key: 'emergency', name: 'Emergency Fund', amount: 0 }
+                ]
+            };
+        }
+
+        let expenseCategories = createDefaultCategories();
+
+        function getItemDisplayName(item) {
+            if (item.key && defaultItems[item.key]) {
+                return defaultItems[item.key][currentLang];
+            }
+            return item.name;
+        }
+
+        function getIncomeSourceDisplayName(src) {
+            if (src.isBaseSalary) {
+                return translations[currentLang].baseSalaryLabel;
+            }
+            return src.name;
+        }
 
         const translations = {
             ar: {
@@ -311,7 +338,9 @@
                 themeText: "الوضع الليلي",
                 themeTextLight: "الوضع النهاري",
                 kpiIncome: "إجمالي الدخل",
+                kpiIncomeSub: "الراتب الأساسي ومصادر الدخل",
                 kpiExpenses: "إجمالي المصروفات",
+                kpiExpensesSub: "الالتزامات والأقساط والترفيه",
                 kpiSavings: "الاستثمار والطوارئ",
                 kpiRemaining: "المتبقي للصرف",
                 salaryQTitle: "ما هو راتبك الشهري الأساسي؟",
@@ -319,17 +348,18 @@
                 salaryPlaceholder: "مثال: 15000",
                 btnSaveSalary: "اعتماد الراتب",
                 extraIncomeTitle: "هل لديك مصدر دخل آخر تود إضافته؟ (عمل حر، بونص، أرباح...)",
-                extraNamePlaceholder: "اسم المصدر (مثال: عمل حر / Freelance)",
+                extraNamePlaceholder: "اسم المصدر (مثال: عمل حر)",
                 extraAmountPlaceholder: "المبلغ",
                 btnAddExtra: "+ إضافة للدخل",
+                closeBtnTitle: "إغلاق",
                 chartPie: "توزيع المصروفات والاستثمار (مرتب الأقسام)",
                 chartBar: "مقارنة أقسام الميزانية",
                 chartBadgeBar: "تحليل مالي",
                 sectionsTitle: "تقسيم المصروفات والادخار",
-                catObligations: "الالتزامات الأساسية (Obligations)",
-                catInstallments: "الأقساط والديون (Installments)",
-                catEntertainment: "مصاريف الحياة والترفيه (Living & Entertainment)",
-                catInvestment: "الاستثمار والطوارئ (Investment & Emergency)",
+                catObligations: "الالتزامات الأساسية",
+                catInstallments: "الأقساط والديون",
+                catEntertainment: "مصاريف الحياة والترفيه",
+                catInvestment: "الاستثمار والطوارئ",
                 colName: "البند",
                 colAmount: "المبلغ الأساسي",
                 colDelete: "حذف",
@@ -340,18 +370,30 @@
                 toastExtraAdded: "تم إضافة مصدر الدخل الإضافي",
                 savingsRatio: "نسبة الادخار:",
                 consumedText: "المستهلك من الدخل:",
-                baseSalaryLabel: "الراتب الأساسي"
+                baseSalaryLabel: "الراتب الأساسي",
+                extraIncomeDefault: "دخل إضافي",
+                resetConfirm: "هل أنت متأكد من تصفير جميع البيانات؟",
+                promptItemName: "أدخل اسم البند الجديد:",
+                promptItemAmount: "المبلغ الأساسي:",
+                chartIncome: "الدخل",
+                chartExpenses: "المصروفات",
+                chartSavings: "الاستثمار",
+                chartBaseAmount: "المبلغ الأساسي",
+                catObligationsShort: "الالتزامات الأساسية",
+                catInstallmentsShort: "الأقساط والديون",
+                catEntertainmentShort: "الترفيه والتسلية",
+                catInvestmentShort: "الاستثمار والطوارئ"
             },
             en: {
-                chartBar: "Budget Categories Comparison",
-                chartBar: "Financial Analysis",   
                 subTitle: "(Personal Finance Dashboard)",
                 btnPdf: "Export PDF",
                 btnReset: "Reset All",
                 themeText: "Dark Mode",
                 themeTextLight: "Light Mode",
                 kpiIncome: "Total Income",
+                kpiIncomeSub: "Base salary & income sources",
                 kpiExpenses: "Total Expenses",
+                kpiExpensesSub: "Obligations, installments & entertainment",
                 kpiSavings: "Investment & Emergency",
                 kpiRemaining: "Remaining to Spend",
                 salaryQTitle: "What is your base monthly salary?",
@@ -362,6 +404,7 @@
                 extraNamePlaceholder: "Source name (Like: Freelance)",
                 extraAmountPlaceholder: "Amount",
                 btnAddExtra: "+ Add Income",
+                closeBtnTitle: "Close",
                 chartPie: "Expenses & Investment Breakdown (Sorted)",
                 chartBar: "Budget Categories Comparison",
                 chartBadgeBar: "Financial Analysis",
@@ -380,7 +423,19 @@
                 toastExtraAdded: "Extra income source added",
                 savingsRatio: "Savings Ratio:",
                 consumedText: "Consumed of Income:",
-                baseSalaryLabel: "Base Salary"
+                baseSalaryLabel: "Base Salary",
+                extraIncomeDefault: "Extra Income",
+                resetConfirm: "Are you sure you want to clear all data?",
+                promptItemName: "Enter item name:",
+                promptItemAmount: "Base amount:",
+                chartIncome: "Income",
+                chartExpenses: "Expenses",
+                chartSavings: "Savings",
+                chartBaseAmount: "Base Amount",
+                catObligationsShort: "Obligations",
+                catInstallmentsShort: "Installments",
+                catEntertainmentShort: "Entertainment",
+                catInvestmentShort: "Investment"
             }
         };
 
@@ -389,6 +444,11 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadFromLocalStorage();
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.classList.toggle('dark', isDarkMode);
+
+            updateLanguageUI();
             updateIncomeBoxUI();
             renderTables();
             initCharts();
@@ -404,17 +464,21 @@
             });
 
             document.getElementById('lang-btn').addEventListener('click', () => {
-    currentLang = currentLang === 'ar' ? 'en' : 'ar';
-    document.documentElement.lang = currentLang;
-    document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-    updateLanguageUI();
-    updateIncomeBoxUI();
-    renderTables();
-    updateDashboard();
-});
+                currentLang = currentLang === 'ar' ? 'en' : 'ar';
+                document.documentElement.lang = currentLang;
+                document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+                saveToLocalStorage();
+                updateLanguageUI();
+                updateIncomeBoxUI();
+                renderTables();
+                updateDashboard();
+                updateChartsTheme();
+            });
+
             document.getElementById('theme-toggle').addEventListener('click', () => {
                 isDarkMode = !isDarkMode;
                 document.documentElement.classList.toggle('dark', isDarkMode);
+                saveToLocalStorage();
                 updateThemeUI();
                 updateChartsTheme();
             });
@@ -440,7 +504,9 @@
             document.getElementById('btn-pdf').textContent = t.btnPdf;
             document.getElementById('btn-reset').textContent = t.btnReset;
             document.getElementById('kpi-income-title').textContent = t.kpiIncome;
+            document.getElementById('income-sources-summary').textContent = t.kpiIncomeSub;
             document.getElementById('kpi-expenses-title').textContent = t.kpiExpenses;
+            document.getElementById('expenses-desc-card').textContent = t.kpiExpensesSub;
             document.getElementById('kpi-savings-title').textContent = t.kpiSavings;
             document.getElementById('kpi-remaining-title').textContent = t.kpiRemaining;
             
@@ -453,13 +519,14 @@
             document.getElementById('extra-source-name').placeholder = t.extraNamePlaceholder;
             document.getElementById('extra-source-amount').placeholder = t.extraAmountPlaceholder;
             document.getElementById('btn-add-extra').textContent = t.btnAddExtra;
+            document.getElementById('dismiss-extra-btn').title = t.closeBtnTitle;
 
             document.getElementById('chart-pie-title').textContent = t.chartPie;
-            document.getElementById('chart-badge-pie').textContent = t.chartBadgePie;
             document.getElementById('chart-bar-title').textContent = t.chartBar;
             document.getElementById('chart-badge-bar').textContent = t.chartBadgeBar;
             document.getElementById('sections-main-title').textContent = t.sectionsTitle;
-            document.getElementById('lang-text').textContent = currentLang === 'ar' ? 'English' : 'عربي';
+            document.getElementById('lang-text').textContent = currentLang === 'ar' ? 'English' : 'العربية';
+            updateThemeUI();
         }
 
         // Top Income Box Logic
@@ -485,7 +552,7 @@
                 // Render chips for added income sources
                 listEl.innerHTML = incomeSources.map(src => `
                     <div class="inline-flex items-center gap-2 border-2 border-black dark:border-white px-3 py-1 text-xs font-bold bg-gray-100 dark:bg-gray-900">
-                        <span>${src.name}: ${formatCurrency(src.amount)}</span>
+                        <span>${getIncomeSourceDisplayName(src)}: ${formatCurrency(src.amount)}</span>
                         <button onclick="removeIncomeSource(${src.id})" class="text-red-600 hover:text-red-800 font-extrabold">×</button>
                     </div>
                 `).join('');
@@ -499,7 +566,8 @@
             incomeSources.push({
                 id: Date.now(),
                 name: translations[currentLang].baseSalaryLabel,
-                amount: val
+                amount: val,
+                isBaseSalary: true
             });
             document.getElementById('salary-input').value = '';
             saveToLocalStorage();
@@ -511,7 +579,7 @@
         function addExtraIncome() {
             const nameInput = document.getElementById('extra-source-name');
             const amountInput = document.getElementById('extra-source-amount');
-            const name = nameInput.value.trim() || (currentLang === 'ar' ? 'دخل إضافي' : 'Extra Income');
+            const name = nameInput.value.trim() || translations[currentLang].extraIncomeDefault;
             const amount = parseFloat(amountInput.value);
 
             if (!amount || amount <= 0) return;
@@ -519,7 +587,8 @@
             incomeSources.push({
                 id: Date.now(),
                 name: name,
-                amount: amount
+                amount: amount,
+                isBaseSalary: false
             });
 
             nameInput.value = '';
@@ -564,7 +633,7 @@
 
                 let rowsHTML = items.map(item => `
                     <tr class="border-b-2 border-black dark:border-white hover:bg-gray-50 dark:hover:bg-gray-900 transition">
-                        <td class="p-3 font-medium">${item.name}</td>
+                        <td class="p-3 font-medium">${getItemDisplayName(item)}</td>
                         <td class="p-3">
                             <input type="number" value="${item.amount}" onchange="updateItem('${cat.key}', ${item.id}, this.value)" class="w-32 bg-transparent border-b-2 border-dashed border-black dark:border-white px-1 font-bold focus:outline-none">
                         </td>
@@ -607,10 +676,11 @@
             lucide.createIcons();
         }
 
-function formatCurrency(val) {
-    const sym = getCurrencySymbol();
-    return currentLang === 'ar' ? `${val.toLocaleString()} ${sym}` : `${sym} ${val.toLocaleString()}`;
-}
+        function formatCurrency(val) {
+            const sym = getCurrencySymbol();
+            return currentLang === 'ar' ? `${val.toLocaleString()} ${sym}` : `${sym} ${val.toLocaleString()}`;
+        }
+
         function updateItem(category, id, value) {
             const item = expenseCategories[category].find(i => i.id === id);
             if (item) {
@@ -629,9 +699,10 @@ function formatCurrency(val) {
         }
 
         function addItemPrompt(category) {
-            const name = prompt(currentLang === 'ar' ? 'أدخل اسم البند الجديد:' : 'Enter item name:');
+            const t = translations[currentLang];
+            const name = prompt(t.promptItemName);
             if (!name) return;
-            const amount = parseFloat(prompt(currentLang === 'ar' ? 'المبلغ الأساسي:' : 'Base amount:', '0')) || 0;
+            const amount = parseFloat(prompt(t.promptItemAmount, '0')) || 0;
             
             expenseCategories[category].push({ id: Date.now(), name, amount });
             saveToLocalStorage();
@@ -676,6 +747,7 @@ function formatCurrency(val) {
 
         // Charts Initialization & High-Contrast Dark/Light Support
         function initCharts() {
+            const t = translations[currentLang];
             const textColor = isDarkMode ? '#ffffff' : '#000000';
             const borderColor = isDarkMode ? '#ffffff' : '#000000';
             const gridColor = isDarkMode ? '#333333' : '#e5e7eb';
@@ -698,7 +770,7 @@ function formatCurrency(val) {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Cairo', weight: 'bold' } } }
+                        legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Cairo, Inter, sans-serif', weight: 'bold' } } }
                     }
                 }
             });
@@ -707,9 +779,9 @@ function formatCurrency(val) {
             barChartInstance = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
-                    labels: [currentLang === 'ar' ? 'الدخل' : 'Income', currentLang === 'ar' ? 'المصروفات' : 'Expenses', currentLang === 'ar' ? 'الاستثمار' : 'Savings'],
+                    labels: [t.chartIncome, t.chartExpenses, t.chartSavings],
                     datasets: [{
-                        label: currentLang === 'ar' ? 'المبلغ الأساسي' : 'Base Amount',
+                        label: t.chartBaseAmount,
                         data: [0, 0, 0],
                         backgroundColor: isDarkMode ? ['#ffffff', '#999999', '#555555'] : ['#000000', '#666666', '#bbbbbb'],
                         borderColor: borderColor,
@@ -720,8 +792,8 @@ function formatCurrency(val) {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { ticks: { color: textColor, font: { family: 'Cairo', weight: 'bold' } }, grid: { color: gridColor } },
-                        y: { ticks: { color: textColor, font: { family: 'Cairo', weight: 'bold' } }, grid: { color: gridColor } }
+                        x: { ticks: { color: textColor, font: { family: 'Cairo, Inter, sans-serif', weight: 'bold' } }, grid: { color: gridColor } },
+                        y: { ticks: { color: textColor, font: { family: 'Cairo, Inter, sans-serif', weight: 'bold' } }, grid: { color: gridColor } }
                     },
                     plugins: {
                         legend: { display: false }
@@ -732,12 +804,13 @@ function formatCurrency(val) {
 
         function updateChartsData(categories, totals) {
             if (!doughnutChartInstance || !barChartInstance) return;
+            const t = translations[currentLang];
 
             const catsArr = [
-                { name: currentLang === 'ar' ? 'الالتزامات الأساسية' : 'Obligations', val: categories.obligations },
-                { name: currentLang === 'ar' ? 'الأقساط والديون' : 'Installments', val: categories.installments },
-                { name: currentLang === 'ar' ? 'الترفيه والتسلية' : 'Entertainment', val: categories.entertainment },
-                { name: currentLang === 'ar' ? 'الاستثمار والطوارئ' : 'Investment', val: categories.investment }
+                { name: t.catObligationsShort, val: categories.obligations },
+                { name: t.catInstallmentsShort, val: categories.installments },
+                { name: t.catEntertainmentShort, val: categories.entertainment },
+                { name: t.catInvestmentShort, val: categories.investment }
             ].sort((a, b) => b.val - a.val);
 
             const hasValues = catsArr.some(c => c.val > 0);
@@ -745,13 +818,15 @@ function formatCurrency(val) {
             doughnutChartInstance.data.datasets[0].data = hasValues ? catsArr.map(c => c.val) : [1, 1, 1, 1];
             doughnutChartInstance.update();
 
-            barChartInstance.data.labels = [currentLang === 'ar' ? 'الدخل' : 'Income', currentLang === 'ar' ? 'المصروفات' : 'Expenses', currentLang === 'ar' ? 'الاستثمار' : 'Savings'];
+            barChartInstance.data.labels = [t.chartIncome, t.chartExpenses, t.chartSavings];
+            barChartInstance.data.datasets[0].label = t.chartBaseAmount;
             barChartInstance.data.datasets[0].data = [totals.income, totals.expenses, totals.savings];
             barChartInstance.update();
         }
 
         function updateChartsTheme() {
             if (!doughnutChartInstance || !barChartInstance) return;
+            const t = translations[currentLang];
             const textColor = isDarkMode ? '#ffffff' : '#000000';
             const borderColor = isDarkMode ? '#ffffff' : '#000000';
             const gridColor = isDarkMode ? '#333333' : '#e5e7eb';
@@ -763,6 +838,8 @@ function formatCurrency(val) {
                 : ['#000000', '#4b5563', '#9ca3af', '#e5e7eb'];
             doughnutChartInstance.update();
 
+            barChartInstance.data.labels = [t.chartIncome, t.chartExpenses, t.chartSavings];
+            barChartInstance.data.datasets[0].label = t.chartBaseAmount;
             barChartInstance.options.scales.x.ticks.color = textColor;
             barChartInstance.options.scales.x.grid.color = gridColor;
             barChartInstance.options.scales.y.ticks.color = textColor;
@@ -776,31 +853,16 @@ function formatCurrency(val) {
 
         // Reset All Data
         function resetBudget() {
-            if (!confirm(currentLang === 'ar' ? 'هل أنت متأكد من تصفير جميع البيانات؟' : 'Are you sure you want to clear all data?')) return;
+            const t = translations[currentLang];
+            if (!confirm(t.resetConfirm)) return;
             incomeSources = [];
             extraIncomeDismissed = false;
-            expenseCategories = {
-                obligations: [
-                    { id: 1, name: currentLang === 'ar' ? 'الإيجار / السكن' : 'Rent / Housing', amount: 0 },
-                    { id: 2, name: currentLang === 'ar' ? 'الفواتير والمرافق' : 'Bills & Utilities', amount: 0 },
-                    { id: 3, name: currentLang === 'ar' ? 'الطعام والمقاضي الأساسية' : 'Food & Groceries', amount: 0 }
-                ],
-                installments: [
-                    { id: 4, name: currentLang === 'ar' ? 'الأقساط والديون الشهرية' : 'Monthly Installments', amount: 0 }
-                ],
-                entertainment: [
-                    { id: 5, name: currentLang === 'ar' ? 'الخروجات والترفيه' : 'Entertainment & Fun', amount: 0 }
-                ],
-                investment: [
-                    { id: 6, name: currentLang === 'ar' ? 'الاستثمار والادخار' : 'Investment & Savings', amount: 0 },
-                    { id: 7, name: currentLang === 'ar' ? 'صندوق الطوارئ' : 'Emergency Fund', amount: 0 }
-                ]
-            };
+            expenseCategories = createDefaultCategories();
             saveToLocalStorage();
             updateIncomeBoxUI();
             renderTables();
             updateDashboard();
-            showToast(translations[currentLang].toastReset);
+            showToast(t.toastReset);
         }
 
         function showToast(msg) {
@@ -817,6 +879,8 @@ function formatCurrency(val) {
             localStorage.setItem('tango_extra_dismissed', JSON.stringify(extraIncomeDismissed));
             localStorage.setItem('tango_expense_cats', JSON.stringify(expenseCategories));
             localStorage.setItem('tango_currency', currentCurrency);
+            localStorage.setItem('tango_lang', currentLang);
+            localStorage.setItem('tango_dark_mode', JSON.stringify(isDarkMode));
         }
 
         function loadFromLocalStorage() {
@@ -825,6 +889,8 @@ function formatCurrency(val) {
                 const savedDismissed = localStorage.getItem('tango_extra_dismissed');
                 const savedExp = localStorage.getItem('tango_expense_cats');
                 const savedCurr = localStorage.getItem('tango_currency');
+                const savedLang = localStorage.getItem('tango_lang');
+                const savedDark = localStorage.getItem('tango_dark_mode');
 
                 if (savedInc) incomeSources = JSON.parse(savedInc);
                 if (savedDismissed) extraIncomeDismissed = JSON.parse(savedDismissed);
@@ -833,29 +899,14 @@ function formatCurrency(val) {
                     currentCurrency = savedCurr;
                     document.getElementById('currency-select').value = currentCurrency;
                 }
+                if (savedLang === 'ar' || savedLang === 'en') {
+                    currentLang = savedLang;
+                }
+                if (savedDark !== null) {
+                    isDarkMode = JSON.parse(savedDark);
+                }
             } catch (e) {}
         }
     </script>
-    <script>
-  // 1. بنمسك الزرار والنص اللي جواه
-  const langBtn = document.getElementById('lang-btn');
-  const langText = document.getElementById('lang-text');
-
-  // 2. بنضيف حدث عند الضغط على الزرار
-  langBtn.addEventListener('click', () => {
-    // بنشوف النص الحالي المكتوب جوا الزرار
-    if (langText.textContent.trim() === 'English') {
-      // لو مكتوب English (يعني الموقع حالياً عربي وهنحوله إنجليزي)
-      langText.textContent = 'Arabic'; 
-      document.documentElement.lang = 'en';
-      document.documentElement.dir = 'ltr';
-    } else {
-      // لو مكتوب العربية (يعني الموقع حالياً إنجليزي وهنحوله عربي)
-      langText.textContent = 'English'; // نرجع الزرار لـ English
-      document.documentElement.lang = 'ar';
-      document.documentElement.dir = 'rtl';
-    }
-  });
-</script>
 </body>
 </html>
